@@ -2,9 +2,13 @@ package com.marverenic.reader.ui.home
 
 import android.os.Bundle
 import com.marverenic.reader.ReaderApplication
+import com.marverenic.reader.data.RssStore
 import com.marverenic.reader.ui.BaseFragment
+import javax.inject.Inject
 
 class HomeFragment : BaseFragment() {
+
+    @Inject lateinit var rssStore: RssStore
 
     companion object {
         fun newInstance() = HomeFragment()

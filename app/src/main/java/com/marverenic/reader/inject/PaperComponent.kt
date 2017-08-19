@@ -1,6 +1,8 @@
 package com.marverenic.reader.inject
 
 import dagger.Component
+import javax.inject.Singleton
 
-@Component(modules = arrayOf(ContextModule::class))
+@Singleton
+@Component(modules = arrayOf(ContextModule::class, FeedlyNetworkModule::class))
 interface PaperComponent : PaperGraph

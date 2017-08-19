@@ -26,6 +26,7 @@ ext {
     targetSdkVersion = 26
     buildToolsVersion = '26.0.1'
     supportLibVersion = '26.0.1'
+    retrofitVersion = '2.3.0'
 }
 
 task clean(type: Delete) {
