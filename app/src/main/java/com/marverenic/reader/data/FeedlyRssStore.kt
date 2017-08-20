@@ -5,7 +5,8 @@ import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Category
 import io.reactivex.Single
 
-class FeedlyRssStore(private val service: FeedlyService) : RssStore {
+class FeedlyRssStore(private val authManager: AuthenticationManager,
+                     private val service: FeedlyService) : RssStore {
 
     override fun getAllArticles(): Single<List<Article>> {
         TODO("not implemented")

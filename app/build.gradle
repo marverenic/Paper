@@ -20,9 +20,21 @@ android {
     }
 
     buildTypes {
+        def apiKeysFile = rootProject.file("feedly.properties")
+        def apiKeys = new Properties()
+        if (apiKeysFile.exists()) apiKeys.load(new FileInputStream(apiKeysFile))
+
+        debug {
+            buildConfigField 'String', 'DEV_OAUTH_TOKEN', apiKeys.getProperty('feedlyDevOauthToken', 'null')
+            buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyDevApiKey', 'null')
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField 'String', 'DEV_OAUTH_TOKEN', 'null'
+            buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyApiKey', 'null')
         }
     }
 }

@@ -36,3 +36,6 @@ proguard/
 # C/C++/NDK output files
 *.o
 *.d
+
+# API keys
+feedly.properties
