@@ -1,22 +1,16 @@
 package com.marverenic.reader.ui.home
 
-import android.os.Bundle
-import com.marverenic.reader.ReaderApplication
-import com.marverenic.reader.data.RssStore
+import android.content.Context
+import android.support.v7.app.AppCompatActivity
 import com.marverenic.reader.ui.BaseFragment
-import javax.inject.Inject
 
-class HomeFragment : BaseFragment() {
+abstract class HomeFragment : BaseFragment() {
 
-    @Inject lateinit var rssStore: RssStore
+    abstract val title: String
 
-    companion object {
-        fun newInstance() = HomeFragment()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        ReaderApplication.component(this).inject(this)
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        (activity as? AppCompatActivity)?.supportActionBar?.title = title
     }
 
 }
