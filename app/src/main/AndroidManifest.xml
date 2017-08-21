@@ -23,5 +23,7 @@
 
         <activity android:name=".ui.login.LoginActivity"/>
 
+        <activity android:name=".ui.stream.StreamActivity"/>
+
     </application>
 </manifest>

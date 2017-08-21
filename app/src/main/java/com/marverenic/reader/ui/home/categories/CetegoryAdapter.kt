@@ -34,7 +34,7 @@ class CategoryViewHolder(private val binding: ViewCategoryBinding)
 
     fun bind(category: Category) {
         binding.viewModel?.let { it.category = category }
-                ?: binding.let { it.viewModel = CategoryViewModel(category) }
+                ?: binding.let { it.viewModel = CategoryViewModel(binding.root.context, category) }
     }
 
 }

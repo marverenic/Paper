@@ -1,11 +1,13 @@
 package com.marverenic.reader.ui.home.categories
 
+import android.content.Context
 import android.databinding.BaseObservable
 import android.databinding.Bindable
 import com.marverenic.reader.BR
 import com.marverenic.reader.model.Category
+import com.marverenic.reader.ui.stream.StreamActivity
 
-class CategoryViewModel(category: Category) : BaseObservable() {
+class CategoryViewModel(val context: Context, category: Category) : BaseObservable() {
 
     var category: Category = category
         set(value) {
@@ -15,5 +17,9 @@ class CategoryViewModel(category: Category) : BaseObservable() {
 
     val title: String
         @Bindable get() = category.label
+
+    fun openCategory() {
+        context.startActivity(StreamActivity.newIntent(context, category.label, category.id))
+    }
 
 }
