@@ -1,11 +1,13 @@
 package com.marverenic.reader.data
 
 import com.marverenic.reader.data.service.FeedlyService
-import com.marverenic.reader.model.Article
+import com.marverenic.reader.model.Stream
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
 import java.io.IOException
+
+private const val MAX_STREAM_ENTRIES = 1000
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService) : RssStore {
@@ -14,14 +16,21 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         service.getCategories(authManager.getFeedlyAuthToken()).unwrapResponse()
     }
 
-    override fun getAllArticles(): Single<List<Article>> {
+    private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
+
+    override fun getAllArticles(): Single<Stream> {
         TODO("not implemented")
     }
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
-    override fun getArticlesInCategory(): Single<List<Article>> {
-        TODO("not implemented")
+    override fun getStream(streamId: String): Single<Stream> {
+        val loader = streams[streamId] ?: RxLoader {
+            service.getStream(authManager.getFeedlyAuthToken(), streamId, MAX_STREAM_ENTRIES)
+                    .unwrapResponse()
+        }.also { streams[streamId] = it }
+
+        return loader.getOrComputeValue()
     }
 
 }
@@ -29,7 +38,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
         map {
             if (it.isSuccessful) it.body()
-            else throw IOException("${it.errorBody()}")
+            else throw IOException("${it.code()}: ${it.errorBody()?.string()}")
         }
 
 private class RxLoader<T>(val load: () -> Single<T>) {

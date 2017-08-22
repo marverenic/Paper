@@ -1,15 +1,15 @@
 package com.marverenic.reader.data
 
-import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Category
+import com.marverenic.reader.model.Stream
 import io.reactivex.Single
 
 interface RssStore {
 
-    fun getAllArticles(): Single<List<Article>>
+    fun getAllArticles(): Single<Stream>
 
     fun getAllCategories(): Single<List<Category>>
 
-    fun getArticlesInCategory(): Single<List<Article>>
+    fun getStream(streamId: String): Single<Stream>
 
 }
