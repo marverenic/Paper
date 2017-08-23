@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/home_drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:theme="@style/ToolbarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <include android:id="@+id/home_content"
+            layout="@layout/activity_home_content"/>
 
-        <FrameLayout
-            android:id="@+id/home_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+        <android.support.design.widget.NavigationView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:menu="@menu/drawer_home"/>
 
-    </LinearLayout>
+    </android.support.v4.widget.DrawerLayout>
 
 </layout>
