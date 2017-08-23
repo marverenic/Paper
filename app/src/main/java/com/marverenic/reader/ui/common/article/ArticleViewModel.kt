@@ -1,4 +1,4 @@
-package com.marverenic.reader.ui.stream
+package com.marverenic.reader.ui.common.article
 
 import android.content.Context
 import android.content.Intent

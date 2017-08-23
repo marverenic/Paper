@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.marverenic.reader.ui.stream.ArticleViewModel"/>
+            type="com.marverenic.reader.ui.common.article.ArticleViewModel"/>
     </data>
 
     <android.support.constraint.ConstraintLayout

@@ -1,4 +1,4 @@
-package com.marverenic.reader.ui.stream
+package com.marverenic.reader.ui.common.article
 
 import android.databinding.DataBindingUtil
 import android.support.v7.widget.RecyclerView

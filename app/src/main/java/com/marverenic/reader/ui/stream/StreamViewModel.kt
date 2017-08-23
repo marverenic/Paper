@@ -4,6 +4,7 @@ import android.content.Context
 import android.databinding.BaseObservable
 import android.support.v7.widget.LinearLayoutManager
 import com.marverenic.reader.model.Article
+import com.marverenic.reader.ui.common.article.ArticleAdapter
 
 class StreamViewModel(context: Context,
                       entries: List<Article> = emptyList()) : BaseObservable() {
