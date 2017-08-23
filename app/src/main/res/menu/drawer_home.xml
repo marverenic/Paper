@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/menu_item_all_articles"
+        android:title="@string/all_articles_header"/>
+
     <item android:id="@+id/menu_item_categories"
         android:title="@string/categories_header"/>
 
