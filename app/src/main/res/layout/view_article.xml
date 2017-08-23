@@ -10,7 +10,6 @@
     </data>
 
     <android.support.constraint.ConstraintLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/list_item_padding">
@@ -20,6 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{viewModel.title}"
+            android:alpha="@{viewModel.textOpacity}"
             android:layout_marginEnd="@dimen/list_horizontal_separation"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:maxLines="1"
@@ -35,6 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{viewModel.date}"
+            android:alpha="@{viewModel.textOpacity}"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:maxLines="1"
             app:layout_constraintTop_toTopOf="@+id/article_title"
@@ -47,6 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.source}"
+            android:alpha="@{viewModel.textOpacity}"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:maxLines="1"
             android:visibility="@{viewModel.sourceVisibility}"
@@ -59,6 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.description}"
+            android:alpha="@{viewModel.textOpacity}"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:maxLines="3"
             android:ellipsize="end"
