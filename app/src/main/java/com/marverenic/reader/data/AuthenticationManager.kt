@@ -6,4 +6,6 @@ interface AuthenticationManager {
 
     fun getFeedlyAuthToken(): String
 
+    fun getFeedlyUserId(): String
+
 }

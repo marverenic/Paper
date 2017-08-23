@@ -12,15 +12,22 @@ private const val MAX_STREAM_ENTRIES = 1000
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService) : RssStore {
 
+    private val allArticlesStreamName: String
+        get() = "user/${authManager.getFeedlyUserId()}/category/global.all"
+
+    private val allArticles = RxLoader {
+        service.getStream(authManager.getFeedlyAuthToken(),
+                allArticlesStreamName, MAX_STREAM_ENTRIES)
+                .unwrapResponse()
+    }
+
     private val categories = RxLoader {
         service.getCategories(authManager.getFeedlyAuthToken()).unwrapResponse()
     }
 
     private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
 
-    override fun getAllArticles(): Single<Stream> {
-        TODO("not implemented")
-    }
+    override fun getAllArticles() = allArticles.getOrComputeValue()
 
     override fun getAllCategories() = categories.getOrComputeValue()
 

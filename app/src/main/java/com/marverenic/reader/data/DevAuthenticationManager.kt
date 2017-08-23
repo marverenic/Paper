@@ -9,4 +9,7 @@ class DevAuthenticationManager: AuthenticationManager {
     override fun getFeedlyAuthToken() = BuildConfig.DEV_OAUTH_TOKEN.takeIf { !it.isNullOrBlank() }
             ?: throw RuntimeException("Invalid dev oauth key")
 
+    override fun getFeedlyUserId() = BuildConfig.DEV_USER_ID.takeIf { !it.isNullOrBlank() }
+            ?: throw RuntimeException("Invalid dev username")
+
 }

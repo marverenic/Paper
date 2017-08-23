@@ -25,6 +25,7 @@ android {
         if (apiKeysFile.exists()) apiKeys.load(new FileInputStream(apiKeysFile))
 
         debug {
+            buildConfigField 'String', 'DEV_USER_ID', apiKeys.getProperty('feedlyDevUserId', 'null')
             buildConfigField 'String', 'DEV_OAUTH_TOKEN', apiKeys.getProperty('feedlyDevOauthToken', 'null')
             buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyDevApiKey', 'null')
         }
@@ -33,6 +34,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
+            buildConfigField 'String', 'DEV_USER_ID', 'null'
             buildConfigField 'String', 'DEV_OAUTH_TOKEN', 'null'
             buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyApiKey', 'null')
         }

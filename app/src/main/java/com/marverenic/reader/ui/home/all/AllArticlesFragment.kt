@@ -10,6 +10,8 @@ import com.marverenic.reader.ReaderApplication
 import com.marverenic.reader.data.RssStore
 import com.marverenic.reader.databinding.FragmentAllArticlesBinding
 import com.marverenic.reader.ui.home.HomeFragment
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class AllArticlesFragment : HomeFragment() {
@@ -34,6 +36,14 @@ class AllArticlesFragment : HomeFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_all_articles, container, false)
         val viewModel = AllArticlesViewModel(context)
         binding.viewModel = viewModel
+
+        rssStore.getAllArticles()
+                .map { it.items }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({articles ->
+                    viewModel.articles = articles
+                })
 
         return binding.root
     }
