@@ -27,6 +27,8 @@ class StreamFragment : ToolbarFragment() {
     override val title: String
         get() = arguments.getString(ARG_STREAM_NAME).orEmpty()
 
+    override val canNavigateUp: Boolean = true
+
     private val streamId: String
         get() = arguments.getString(ARG_STREAM_ID)
 

@@ -12,6 +12,7 @@ import com.marverenic.reader.databinding.FragmentToolbarBinding
 abstract class ToolbarFragment : BaseFragment() {
 
     abstract val title: String
+    abstract val canNavigateUp: Boolean
 
     private lateinit var binding: FragmentToolbarBinding
 
@@ -24,7 +25,14 @@ abstract class ToolbarFragment : BaseFragment() {
         }
 
         binding.toolbar.title = title
-        (activity as? AppCompatActivity)?.setSupportActionBar(binding.toolbar)
+        (activity as? AppCompatActivity)?.let { activity ->
+            activity.setSupportActionBar(binding.toolbar)
+
+            activity.supportActionBar?.let { toolbar ->
+                toolbar.setDisplayHomeAsUpEnabled(canNavigateUp)
+                toolbar.setDisplayShowHomeEnabled(canNavigateUp)
+            }
+        }
 
         return binding.root
     }
