@@ -24,7 +24,7 @@ class ArticleViewModel(private val context: Context, article: Article) : BaseObs
         @Bindable get() = article.title.orEmpty()
 
     val description: String
-        @Bindable get() = article.summary?.content.orEmpty()
+        @Bindable get() = article.summary?.asPlaintext().orEmpty()
 
     val date: String
         @Bindable get() = article.published.toDateString(context)
