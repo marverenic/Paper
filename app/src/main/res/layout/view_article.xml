@@ -12,7 +12,9 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/list_item_padding">
+        android:padding="@dimen/list_item_padding"
+        android:background="?attr/selectableItemBackground"
+        android:onClick="@{() -> viewModel.onClickArticle()}">
 
         <TextView
             android:id="@+id/article_title"

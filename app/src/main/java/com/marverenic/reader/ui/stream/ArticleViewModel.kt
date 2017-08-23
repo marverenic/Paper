@@ -1,8 +1,10 @@
 package com.marverenic.reader.ui.stream
 
 import android.content.Context
+import android.content.Intent
 import android.databinding.BaseObservable
 import android.databinding.Bindable
+import android.net.Uri
 import android.view.View
 import com.marverenic.reader.BR
 import com.marverenic.reader.model.Article
@@ -41,5 +43,11 @@ class ArticleViewModel(private val context: Context, article: Article) : BaseObs
 
     val textOpacity: Float
         @Bindable get() = if (article.unread) UNREAD_ALPHA else READ_ALPHA
+
+    fun onClickArticle() {
+        article.alternate?.firstOrNull()?.href?.let {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+        }
+    }
 
 }
