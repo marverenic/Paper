@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -8,18 +9,63 @@
             type="com.marverenic.reader.ui.stream.ArticleViewModel"/>
     </data>
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/list_item_padding">
 
         <TextView
-            android:layout_width="match_parent"
+            android:id="@+id/article_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{viewModel.title}"
+            android:layout_marginEnd="@dimen/list_horizontal_separation"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/article_date"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
             tools:text="Article Title"/>
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/article_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.date}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:maxLines="1"
+            app:layout_constraintTop_toTopOf="@+id/article_title"
+            app:layout_constraintStart_toEndOf="@+id/article_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="8/21/2017"/>
+
+        <TextView
+            android:id="@+id/article_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.source}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:maxLines="1"
+            android:visibility="@{viewModel.sourceVisibility}"
+            app:layout_constraintTop_toBottomOf="@+id/article_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Website Name"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.description}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:maxLines="3"
+            android:ellipsize="end"
+            app:layout_constraintTop_toBottomOf="@+id/article_source"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Article Description"/>
+
+    </android.support.constraint.ConstraintLayout>
 </layout>

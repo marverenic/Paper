@@ -7,6 +7,7 @@ data class Article(
         val published: Timestamp,
         val updated: Timestamp?,
         val unread: Boolean,
+        val origin: Origin?,
         val visual: Visual?,
         val summary: Content?,
         val alternate: List<Link>?,
@@ -23,3 +24,5 @@ data class Visual(
 data class Content(val content: String)
 
 data class Link(val href: String, val type: String)
+
+data class Origin(val htmlUrl: String, val title: String, val streamId: String)

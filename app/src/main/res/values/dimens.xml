@@ -2,5 +2,6 @@
 <resources>
 
     <dimen name="list_item_padding">16dp</dimen>
+    <dimen name="list_horizontal_separation">8dp</dimen>
 
 </resources>
