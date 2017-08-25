@@ -1,8 +1,8 @@
 package com.marverenic.reader.ui
 
-import android.support.v7.app.AppCompatActivity
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 
-abstract class BaseActivity : AppCompatActivity() {
+abstract class BaseActivity : RxAppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         finish()

@@ -55,6 +55,7 @@ class StreamFragment : ToolbarFragment() {
         rssStore.getStream(streamId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycle())
                 .subscribe({ stream ->
                     viewModel.entries = stream.items
                 })

@@ -6,6 +6,7 @@ import com.marverenic.reader.data.service.FeedlyService
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Stream
 import com.marverenic.reader.utils.replaceAll
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
@@ -35,7 +36,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
-    override fun getStream(streamId: String): Single<Stream> {
+    override fun getStream(streamId: String): Observable<Stream> {
         val loader = streams[streamId] ?: RxLoader {
             service.getStream(authManager.getFeedlyAuthToken(), streamId, MAX_STREAM_ENTRIES)
                     .unwrapResponse()
@@ -80,15 +81,15 @@ private class RxLoader<T>(val load: () -> Single<T>) {
     val isLoaded: Boolean
         get() = value.hasValue()
 
-    fun computeValue(): Single<T> {
+    fun computeValue(): Observable<T> {
         value = BehaviorSubject.create()
         load().subscribe(value::onNext)
-        return value.firstOrError()
+        return value
     }
 
-    fun getOrComputeValue(): Single<T> {
+    fun getOrComputeValue(): Observable<T> {
         return if (!isLoaded) computeValue()
-        else value.firstOrError()
+        else value
     }
 
     fun getValue(): T? = if (value.hasValue()) value.value else null

@@ -17,6 +17,10 @@ class ArticleAdapter(articles: List<Article> = emptyList(), val callback: Articl
             notifyDataSetChanged()
         }
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         holder.bind(articles[position])
     }
@@ -28,6 +32,8 @@ class ArticleAdapter(articles: List<Article> = emptyList(), val callback: Articl
     }
 
     override fun getItemCount() = articles.size
+
+    override fun getItemId(position: Int) = articles[position].id.hashCode().toLong()
 
 }
 

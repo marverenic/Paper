@@ -41,6 +41,7 @@ class AllArticlesFragment : HomeFragment() {
                 .map { it.items }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycle())
                 .subscribe({articles ->
                     viewModel.articles = articles
                 })

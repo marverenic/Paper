@@ -39,6 +39,7 @@ class CategoriesFragment : HomeFragment() {
         rssStore.getAllCategories()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(bindToLifecycle())
                 .subscribe({ categories ->
                     binding.viewModel?.categories = categories
                 }, { error ->

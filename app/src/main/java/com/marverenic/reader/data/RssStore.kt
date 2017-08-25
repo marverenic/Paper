@@ -3,15 +3,15 @@ package com.marverenic.reader.data
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Category
 import com.marverenic.reader.model.Stream
-import io.reactivex.Single
+import io.reactivex.Observable
 
 interface RssStore {
 
-    fun getAllArticles(): Single<Stream>
+    fun getAllArticles(): Observable<Stream>
 
-    fun getAllCategories(): Single<List<Category>>
+    fun getAllCategories(): Observable<List<Category>>
 
-    fun getStream(streamId: String): Single<Stream>
+    fun getStream(streamId: String): Observable<Stream>
 
     fun markAsRead(article: Article, read: Boolean = true)
 
