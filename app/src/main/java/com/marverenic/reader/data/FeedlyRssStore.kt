@@ -1,7 +1,11 @@
 package com.marverenic.reader.data
 
+import com.marverenic.reader.data.service.ACTION_READ
+import com.marverenic.reader.data.service.ArticleMarkerRequest
 import com.marverenic.reader.data.service.FeedlyService
+import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Stream
+import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
@@ -40,6 +44,27 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         return loader.getOrComputeValue()
     }
 
+    override fun markAsRead(article: Article, read: Boolean) {
+        service
+                .markArticles(authManager.getFeedlyAuthToken(), ArticleMarkerRequest(
+                        entryIds = listOf(article.id), action = ACTION_READ))
+                .unwrapResponse()
+                .subscribe()
+
+        val readArticle = article.copy(unread = !read)
+        allArticles.getValue()?.let {
+            val newContents = it.items.replaceAll(article, readArticle)
+            allArticles.setValue(it.copy(items = newContents))
+        }
+
+        streams.forEach { (_, stream) ->
+            stream.getValue()?.let {
+                val newContents = it.items.replaceAll(article, readArticle)
+                allArticles.setValue(it.copy(items = newContents))
+            }
+        }
+    }
+
 }
 
 private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
@@ -64,6 +89,12 @@ private class RxLoader<T>(val load: () -> Single<T>) {
     fun getOrComputeValue(): Single<T> {
         return if (!isLoaded) computeValue()
         else value.firstOrError()
+    }
+
+    fun getValue(): T? = if (value.hasValue()) value.value else null
+
+    fun setValue(t: T) {
+        value.onNext(t)
     }
 
 }

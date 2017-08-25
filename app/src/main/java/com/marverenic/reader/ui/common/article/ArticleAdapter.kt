@@ -8,7 +8,8 @@ import com.marverenic.reader.R
 import com.marverenic.reader.databinding.ViewArticleBinding
 import com.marverenic.reader.model.Article
 
-class ArticleAdapter(articles: List<Article> = emptyList()) : RecyclerView.Adapter<ArticleViewHolder>() {
+class ArticleAdapter(articles: List<Article> = emptyList(), val callback: ArticleReadCallback)
+    : RecyclerView.Adapter<ArticleViewHolder>() {
 
     var articles: List<Article> = articles
         set(value) {
@@ -22,18 +23,21 @@ class ArticleAdapter(articles: List<Article> = emptyList()) : RecyclerView.Adapt
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
         return ArticleViewHolder(DataBindingUtil.inflate(
-                LayoutInflater.from(parent.context), R.layout.view_article, parent, false))
+                LayoutInflater.from(parent.context), R.layout.view_article, parent, false),
+                callback)
     }
 
     override fun getItemCount() = articles.size
 
 }
 
-class ArticleViewHolder(val binding: ViewArticleBinding) : RecyclerView.ViewHolder(binding.root) {
+class ArticleViewHolder(val binding: ViewArticleBinding,
+                        val callback: ArticleReadCallback)
+    : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(article: Article) {
         binding.viewModel?.let { it.article = article }
-                ?: binding.let { it.viewModel = ArticleViewModel(binding.root.context, article) }
+                ?: binding.let { it.viewModel = ArticleViewModel(itemView.context, callback, article) }
     }
 
 }

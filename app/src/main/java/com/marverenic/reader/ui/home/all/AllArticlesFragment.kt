@@ -34,7 +34,7 @@ class AllArticlesFragment : HomeFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_all_articles, container, false)
-        val viewModel = AllArticlesViewModel(context)
+        val viewModel = AllArticlesViewModel(context) { rssStore.markAsRead(it) }
         binding.viewModel = viewModel
 
         rssStore.getAllArticles()

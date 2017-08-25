@@ -13,7 +13,10 @@ import com.marverenic.reader.model.toDateString
 private const val UNREAD_ALPHA = 1.0f
 private const val READ_ALPHA = 0.5f
 
-class ArticleViewModel(private val context: Context, article: Article) : BaseObservable() {
+class ArticleViewModel(private val context: Context,
+                       private val callback: ArticleReadCallback,
+                       article: Article)
+    : BaseObservable() {
 
     var article: Article = article
         set(value) {
@@ -47,6 +50,7 @@ class ArticleViewModel(private val context: Context, article: Article) : BaseObs
     fun onClickArticle() {
         article.alternate?.firstOrNull()?.href?.let {
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+            callback(article)
         }
     }
 

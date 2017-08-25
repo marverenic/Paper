@@ -4,10 +4,7 @@ import com.marverenic.reader.model.Category
 import com.marverenic.reader.model.Stream
 import io.reactivex.Single
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface FeedlyService {
 
@@ -24,5 +21,9 @@ interface FeedlyService {
                               @Path("streamId") streamId: String,
                               @Query("continuation") continuation: String,
                               @Query("count") count: Int): Single<Response<Stream>>
+
+    @POST("markers")
+    fun markArticles(@Header("Authorization") token: String,
+                     @Body request: ArticleMarkerRequest): Single<Response<Unit>>
 
 }
