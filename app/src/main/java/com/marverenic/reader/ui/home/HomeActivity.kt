@@ -26,7 +26,7 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home)
-        setSelectedFragment(R.id.menu_item_categories)
+        setSelectedFragment(R.id.menu_item_all_articles)
 
         binding.homeDrawerNavigationView.setNavigationItemSelectedListener { menuItem ->
             setSelectedFragment(menuItem.itemId)
