@@ -60,7 +60,7 @@ class ArticleAdapter(stream: Stream? = null,
     override fun getItemCount() = articles.size + if (stream?.continuation != null) 1 else 0
 
     override fun getItemId(position: Int) =
-            if (position in articles.indices) articles[position].id.hashCode().toLong()
+            if (position < articles.size) articles[position].id.hashCode().toLong()
             else (1L shl 32)
 
 }
