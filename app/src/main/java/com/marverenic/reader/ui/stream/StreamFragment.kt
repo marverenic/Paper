@@ -49,7 +49,10 @@ class StreamFragment : ToolbarFragment() {
 
     override fun onCreateContentView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_stream, container, false)
-        val viewModel = StreamViewModel(context) { rssStore.markAsRead(it) }
+        val viewModel = StreamViewModel(context,
+                readCallback = { rssStore.markAsRead(it) },
+                fetchCallback = { rssStore.loadMoreArticles(it) })
+
         binding.viewModel = viewModel
 
         rssStore.getStream(streamId)
@@ -57,7 +60,7 @@ class StreamFragment : ToolbarFragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
                 .subscribe({ stream ->
-                    viewModel.entries = stream.items
+                    viewModel.entries = stream
                 })
 
         return binding.root

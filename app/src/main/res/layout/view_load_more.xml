@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.marverenic.reader.ui.common.article.StreamContinuationViewModel"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_gravity="center"
+            android:text="@string/action_load_more_articles"
+            android:enabled="@{viewModel.loadMoreEnabled}"
+            android:onClick="@{() -> viewModel.loadMore()}"/>
+
+    </FrameLayout>
+</layout>

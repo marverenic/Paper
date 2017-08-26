@@ -34,16 +34,18 @@ class AllArticlesFragment : HomeFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_all_articles, container, false)
-        val viewModel = AllArticlesViewModel(context) { rssStore.markAsRead(it) }
+        val viewModel = AllArticlesViewModel(context,
+                readCallback = { rssStore.markAsRead(it) },
+                fetchCallback = { rssStore.loadMoreArticles(it) })
+
         binding.viewModel = viewModel
 
         rssStore.getAllArticles()
-                .map { it.items }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
-                .subscribe({articles ->
-                    viewModel.articles = articles
+                .subscribe({stream ->
+                    viewModel.stream = stream
                 })
 
         return binding.root

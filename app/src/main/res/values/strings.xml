@@ -5,4 +5,6 @@
     <string name="all_articles_header">All Articles</string>
     <string name="categories_header">Categories</string>
 
+    <string name="action_load_more_articles">Load more</string>
+
 </resources>

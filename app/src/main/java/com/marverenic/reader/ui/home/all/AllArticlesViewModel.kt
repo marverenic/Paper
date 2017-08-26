@@ -3,23 +3,26 @@ package com.marverenic.reader.ui.home.all
 import android.content.Context
 import android.databinding.BaseObservable
 import android.support.v7.widget.LinearLayoutManager
-import com.marverenic.reader.model.Article
+import com.marverenic.reader.model.Stream
 import com.marverenic.reader.ui.common.article.ArticleAdapter
+import com.marverenic.reader.ui.common.article.ArticleFetchCallback
 import com.marverenic.reader.ui.common.article.ArticleReadCallback
 
 class AllArticlesViewModel(val context: Context,
-                           articles: List<Article> = emptyList(),
-                           val callback: ArticleReadCallback) : BaseObservable() {
+                           stream: Stream? = null,
+                           val readCallback: ArticleReadCallback,
+                           val fetchCallback: ArticleFetchCallback)
+    : BaseObservable() {
 
-    var articles: List<Article> = articles
+    var stream: Stream? = stream
         set(value) {
             field = value
-            adapter.articles = value
+            adapter.stream = stream
             adapter.notifyDataSetChanged()
         }
 
     val adapter: ArticleAdapter by lazy(LazyThreadSafetyMode.NONE) {
-        ArticleAdapter(articles, callback)
+        ArticleAdapter(stream, readCallback, fetchCallback)
     }
 
     val layoutManager = LinearLayoutManager(context)
