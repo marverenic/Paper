@@ -17,14 +17,8 @@ private const val MAX_STREAM_ENTRIES = 1000
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService) : RssStore {
 
-    private val allArticlesStreamName: String
+    private val allArticlesStreamId: String
         get() = "user/${authManager.getFeedlyUserId()}/category/global.all"
-
-    private val allArticles = RxLoader {
-        service.getStream(authManager.getFeedlyAuthToken(),
-                allArticlesStreamName, MAX_STREAM_ENTRIES)
-                .unwrapResponse()
-    }
 
     private val categories = RxLoader {
         service.getCategories(authManager.getFeedlyAuthToken()).unwrapResponse()
@@ -32,7 +26,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
 
-    override fun getAllArticles() = allArticles.getOrComputeValue()
+    override fun getAllArticles() = getStream(allArticlesStreamId)
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
@@ -53,15 +47,10 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
                 .subscribe()
 
         val readArticle = article.copy(unread = !read)
-        allArticles.getValue()?.let {
-            val newContents = it.items.replaceAll(article, readArticle)
-            allArticles.setValue(it.copy(items = newContents))
-        }
-
-        streams.forEach { (_, stream) ->
-            stream.getValue()?.let {
-                val newContents = it.items.replaceAll(article, readArticle)
-                allArticles.setValue(it.copy(items = newContents))
+        streams.forEach { (_, loader) ->
+            loader.getValue()?.let { stream ->
+                val newContents = stream.items.replaceAll(article, readArticle)
+                loader.setValue(stream.copy(items = newContents))
             }
         }
     }
