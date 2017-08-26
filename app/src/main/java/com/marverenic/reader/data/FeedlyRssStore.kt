@@ -40,6 +40,10 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
     }
 
     override fun markAsRead(article: Article, read: Boolean) {
+        if (article.unread == !read) {
+            return
+        }
+
         service
                 .markArticles(authManager.getFeedlyAuthToken(), ArticleMarkerRequest(
                         entryIds = listOf(article.id), action = ACTION_READ))
