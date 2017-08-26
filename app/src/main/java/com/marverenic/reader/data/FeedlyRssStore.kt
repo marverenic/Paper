@@ -12,7 +12,7 @@ import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
 import java.io.IOException
 
-private const val MAX_STREAM_ENTRIES = 1000
+private const val STREAM_LOAD_SIZE = 250
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService) : RssStore {
@@ -32,11 +32,28 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     override fun getStream(streamId: String): Observable<Stream> {
         val loader = streams[streamId] ?: RxLoader {
-            service.getStream(authManager.getFeedlyAuthToken(), streamId, MAX_STREAM_ENTRIES)
+            service.getStream(authManager.getFeedlyAuthToken(), streamId, STREAM_LOAD_SIZE)
                     .unwrapResponse()
         }.also { streams[streamId] = it }
 
         return loader.getOrComputeValue()
+    }
+
+    override fun loadMoreArticles(stream: Stream) {
+        if (stream.continuation == null) {
+            return
+        }
+
+        streams[stream.id]?.let { loader ->
+            service
+                    .getStreamContinuation(authManager.getFeedlyAuthToken(), stream.id,
+                            stream.continuation, STREAM_LOAD_SIZE)
+                    .unwrapResponse()
+                    .subscribe { continuation ->
+                        val merged = continuation.copy(items = stream.items + continuation.items)
+                        loader.setValue(merged)
+                    }
+        }
     }
 
     override fun markAsRead(article: Article, read: Boolean) {
