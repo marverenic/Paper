@@ -1,5 +1,6 @@
 package com.marverenic.reader.data
 
+import com.marverenic.reader.data.database.RssDatabase
 import com.marverenic.reader.data.service.ACTION_READ
 import com.marverenic.reader.data.service.ArticleMarkerRequest
 import com.marverenic.reader.data.service.FeedlyService
@@ -15,7 +16,8 @@ import java.io.IOException
 private const val STREAM_LOAD_SIZE = 250
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
-                     private val service: FeedlyService) : RssStore {
+                     private val service: FeedlyService,
+                     private val rssDatabase: RssDatabase) : RssStore {
 
     private val allArticlesStreamId: String
         get() = "user/${authManager.getFeedlyUserId()}/category/global.all"
@@ -31,9 +33,10 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
     override fun getAllCategories() = categories.getOrComputeValue()
 
     override fun getStream(streamId: String): Observable<Stream> {
-        val loader = streams[streamId] ?: RxLoader {
+        val loader = streams[streamId] ?: RxLoader(rssDatabase.getStream(streamId)) {
             service.getStream(authManager.getFeedlyAuthToken(), streamId, STREAM_LOAD_SIZE)
                     .unwrapResponse()
+                    .doOnSuccess { rssDatabase.insertStream(it) }
         }.also { streams[streamId] = it }
 
         return loader.getOrComputeValue()
@@ -84,15 +87,15 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
             else throw IOException("${it.code()}: ${it.errorBody()?.string()}")
         }
 
-private class RxLoader<T>(val load: () -> Single<T>) {
+private class RxLoader<T>(default: T? = null, val load: () -> Single<T>) {
 
-    private var value: BehaviorSubject<T> = BehaviorSubject.create()
+    private val value: BehaviorSubject<T> = default?.let { BehaviorSubject.createDefault(it) }
+            ?: BehaviorSubject.create()
 
     val isLoaded: Boolean
         get() = value.hasValue()
 
     fun computeValue(): Observable<T> {
-        value = BehaviorSubject.create()
         load().subscribe(value::onNext)
         return value
     }
