@@ -13,7 +13,7 @@ fun SQLiteDatabase.query(table: String,
 
 fun SQLiteDatabase.insert(table: String, values: ContentValues) = insert(table, null, values)
 
-inline fun <T> SQLiteDatabase.insertAll(table: String, items: List<T>, convert: (T) -> ContentValues) {
+inline fun <T> SQLiteDatabase.insertAll(table: String, items: Collection<T>, convert: (T) -> ContentValues) {
     items.forEach { insert(table, convert(it)) }
 }
 
