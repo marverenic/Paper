@@ -18,10 +18,12 @@ abstract class SqliteTable<T>(private val db: SQLiteDatabase) {
 
     fun insert(row: T) {
         db.insert(tableName, ContentValues().apply { convertToContentValues(row, this) })
+        onInsertRow(row)
     }
 
     fun insertAll(rows: Collection<T>) {
         db.insertAll(tableName, rows) { item ->
+            onInsertRow(item)
             ContentValues().apply { convertToContentValues(item, this) }
         }
     }
@@ -42,6 +44,10 @@ abstract class SqliteTable<T>(private val db: SQLiteDatabase) {
                         null
                     }
                 }
+    }
+
+    protected open fun onInsertRow(row: T) {
+        // Do nothing by default.
     }
 
 }

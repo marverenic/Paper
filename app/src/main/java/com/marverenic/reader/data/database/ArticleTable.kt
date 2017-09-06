@@ -25,7 +25,7 @@ private const val ARTICLE_VISUAL_HEIGHT_COL = "visual_height"
 private const val ARTICLE_VISUAL_URL_COL = "visual_url"
 private const val ARTICLE_CONTENT_COL = "content"
 
-val CREATE_STATEMENT = """
+private const val CREATE_STATEMENT = """
                 CREATE TABLE $ARTICLE_TABLE_NAME (
                     $ARTICLE_ID_COL                     varchar     PRIMARY KEY,
                     $ARTICLE_STREAM_ID_COL              varchar,
@@ -74,7 +74,8 @@ private fun Cursor.getContent(): Content? {
 
 data class ArticleRow(val article: Article, val streamId: String)
 
-class ArticleTable(db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
+class ArticleTable(private val linkTable: LinkTable,
+                   db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
 
     override val tableName = "articles"
 
@@ -114,10 +115,11 @@ class ArticleTable(db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
     }
 
     override fun readValueFromCursor(cursor: Cursor): ArticleRow {
+        val articleId = cursor.getString(ARTICLE_ID_COL)
         return ArticleRow(
                 streamId = cursor.getString(ARTICLE_STREAM_ID_COL),
                 article = Article(
-                        id = cursor.getString(ARTICLE_ID_COL),
+                        id = articleId,
                         title = cursor.getOptionalString(ARTICLE_TITLE_COL),
                         author = cursor.getOptionalString(ARTICLE_AUTHOR_COL),
                         published = cursor.getLong(ARTICLE_PUBLISHED_COL),
@@ -126,7 +128,7 @@ class ArticleTable(db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
                         origin = cursor.getOrigin(),
                         visual = cursor.getVisual(),
                         summary = cursor.getContent(),
-                        alternate = null, // TODO
+                        alternate = linkTable.findByArticle(articleId),
                         tags = null, // TODO
                         keywords = null // TODO
                 )
@@ -146,6 +148,10 @@ class ArticleTable(db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
                 selectionArgs = arrayOf(streamId))
             .map(ArticleRow::article)
 
-
+    override fun onInsertRow(row: ArticleRow) {
+        row.article.alternate?.let {
+            linkTable.insertAll(it, row.article.id)
+        }
+    }
 
 }

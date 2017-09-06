@@ -30,7 +30,8 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     private val databaseHelper = DatabaseHelper(context)
 
-    private val articleTable = ArticleTable(databaseHelper.writableDatabase)
+    private val linkTable = LinkTable(databaseHelper.writableDatabase)
+    private val articleTable = ArticleTable(linkTable, databaseHelper.writableDatabase)
 
     override fun getStream(streamId: String): Stream? {
         databaseHelper.readableDatabase
@@ -81,6 +82,7 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
         override fun onCreate(db: SQLiteDatabase) {
             ArticleTable.onCreate(db)
+            LinkTable.onCreate(db)
 
             db.execSQL("""
                 CREATE TABLE $STREAM_TABLE_NAME (
