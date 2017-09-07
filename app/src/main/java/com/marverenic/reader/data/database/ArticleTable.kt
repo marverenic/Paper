@@ -3,13 +3,10 @@ package com.marverenic.reader.data.database
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.marverenic.reader.model.Article
-import com.marverenic.reader.model.Content
-import com.marverenic.reader.model.Origin
-import com.marverenic.reader.model.Visual
+import com.marverenic.reader.model.*
 import com.marverenic.reader.utils.*
 
-private const val ARTICLE_TABLE_NAME = "articles"
+const val ARTICLE_TABLE_NAME = "articles"
 private const val ARTICLE_ID_COL = "_ID"
 private const val ARTICLE_STREAM_ID_COL = "stream_ID"
 private const val ARTICLE_TITLE_COL = "title"
@@ -75,6 +72,8 @@ private fun Cursor.getContent(): Content? {
 data class ArticleRow(val article: Article, val streamId: String)
 
 class ArticleTable(private val linkTable: LinkTable,
+                   private val tagTable: TagTable,
+                   private val articleTagTable: ArticleTagTable,
                    db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
 
     override val tableName = "articles"
@@ -129,7 +128,8 @@ class ArticleTable(private val linkTable: LinkTable,
                         visual = cursor.getVisual(),
                         summary = cursor.getContent(),
                         alternate = linkTable.findByArticle(articleId),
-                        tags = null, // TODO
+                        tags = articleTagTable.getTagIdsForArticle(articleId)
+                                .mapNotNull { tagTable.findById(it) },
                         keywords = null // TODO
                 )
         )
@@ -149,8 +149,14 @@ class ArticleTable(private val linkTable: LinkTable,
             .map(ArticleRow::article)
 
     override fun onInsertRow(row: ArticleRow) {
-        row.article.alternate?.let {
+        val article = row.article;
+        article.alternate?.let {
             linkTable.insertAll(it, row.article.id)
+        }
+
+        article.tags?.let {
+            tagTable.insertAll(it)
+            articleTagTable.insertAll(article.id, it.map(Tag::id))
         }
     }
 
