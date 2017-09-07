@@ -74,6 +74,7 @@ data class ArticleRow(val article: Article, val streamId: String)
 class ArticleTable(private val linkTable: LinkTable,
                    private val tagTable: TagTable,
                    private val articleTagTable: ArticleTagTable,
+                   private val articleKeywordTable: ArticleKeywordTable,
                    db: SQLiteDatabase) : SqliteTable<ArticleRow>(db) {
 
     override val tableName = "articles"
@@ -130,7 +131,7 @@ class ArticleTable(private val linkTable: LinkTable,
                         alternate = linkTable.findByArticle(articleId),
                         tags = articleTagTable.getTagIdsForArticle(articleId)
                                 .mapNotNull { tagTable.findById(it) },
-                        keywords = null // TODO
+                        keywords = articleKeywordTable.getKeywordsForArticle(articleId)
                 )
         )
     }
@@ -157,6 +158,10 @@ class ArticleTable(private val linkTable: LinkTable,
         article.tags?.let {
             tagTable.insertAll(it)
             articleTagTable.insertAll(article.id, it.map(Tag::id))
+        }
+
+        article.keywords?.let {
+            articleKeywordTable.insert(article.id, it)
         }
     }
 
