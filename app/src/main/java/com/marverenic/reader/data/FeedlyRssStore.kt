@@ -30,14 +30,20 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
-    override fun getStream(streamId: String): Observable<Stream> {
-        val loader = streams[streamId] ?: RxLoader {
+    private fun getStreamLoader(streamId: String): RxLoader<Stream> {
+        return streams[streamId] ?: RxLoader {
             service.getStream(authManager.getFeedlyAuthToken(), streamId, STREAM_LOAD_SIZE)
                     .unwrapResponse()
         }.also { streams[streamId] = it }
-
-        return loader.getOrComputeValue()
     }
+
+    override fun getStream(streamId: String) = getStreamLoader(streamId).getOrComputeValue()
+
+    override fun refreshStream(streamId: String) {
+        getStreamLoader(streamId).computeValue()
+    }
+
+    override fun isLoadingStream(streamId: String) = getStreamLoader(streamId).isComputingValue()
 
     override fun loadMoreArticles(stream: Stream) {
         if (stream.continuation == null) {
@@ -88,19 +94,26 @@ private class RxLoader<T>(val load: () -> Single<T>) {
 
     private var value: BehaviorSubject<T> = BehaviorSubject.create()
 
-    val isLoaded: Boolean
-        get() = value.hasValue()
+    private val isLoading: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
 
     fun computeValue(): Observable<T> {
-        value = BehaviorSubject.create()
         load().subscribe(value::onNext)
+        isLoading.take(1).subscribe { loading ->
+            if (!loading) {
+                isLoading.onNext(true)
+                load().doOnEvent { _, _ -> isLoading.onNext(false) }
+                        .subscribe(value::onNext)
+            }
+        }
         return value
     }
 
     fun getOrComputeValue(): Observable<T> {
-        return if (!isLoaded) computeValue()
+        return if (!value.hasValue()) computeValue()
         else value
     }
+
+    fun isComputingValue(): Observable<Boolean> = isLoading
 
     fun getValue(): T? = if (value.hasValue()) value.value else null
 
