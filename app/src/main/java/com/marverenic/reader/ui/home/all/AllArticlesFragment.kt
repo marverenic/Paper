@@ -39,16 +39,33 @@ class AllArticlesFragment : HomeFragment() {
                 fetchCallback = { rssStore.loadMoreArticles(it) })
 
         binding.viewModel = viewModel
+        loadArticles()
 
+        return binding.root
+    }
+
+    private fun loadArticles() {
         rssStore.getAllArticles()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
                 .subscribe({stream ->
-                    viewModel.stream = stream
+                    binding.viewModel?.let { viewModel ->
+                        viewModel.stream = stream
+                        viewModel.refreshing = false
+                        setupRefreshListener(viewModel)
+                    }
                 })
+    }
 
-        return binding.root
+    private fun setupRefreshListener(viewModel: AllArticlesViewModel) {
+        viewModel.getRefreshObservable()
+                .distinctUntilChanged()
+                .subscribe({ refreshing ->
+                    if (refreshing) {
+                        rssStore.refreshAllArticles()
+                    }
+                })
     }
 
 }
