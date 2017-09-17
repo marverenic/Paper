@@ -27,7 +27,7 @@ class AllArticlesViewModel(val context: Context,
             adapter.notifyDataSetChanged()
         }
 
-    var refreshing: Boolean = (stream != null)
+    var refreshing: Boolean = (stream == null)
         set(value) {
             if (value != field) {
                 refreshSubject.onNext(value)
