@@ -13,6 +13,14 @@ interface RssStore {
 
     fun getStream(streamId: String): Observable<Stream>
 
+    fun refreshStream(streamId: String)
+
+    fun refreshAllArticles()
+
+    fun refreshCategories()
+
+    fun isLoadingStream(streamId: String): Observable<Boolean>
+
     fun loadMoreArticles(stream: Stream)
 
     fun markAsRead(article: Article, read: Boolean = true)

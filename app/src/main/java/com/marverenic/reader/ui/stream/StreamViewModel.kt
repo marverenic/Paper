@@ -2,11 +2,17 @@ package com.marverenic.reader.ui.stream
 
 import android.content.Context
 import android.databinding.BaseObservable
+import android.databinding.Bindable
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
+import com.marverenic.reader.BR
+import com.marverenic.reader.R
 import com.marverenic.reader.model.Stream
 import com.marverenic.reader.ui.common.article.ArticleAdapter
 import com.marverenic.reader.ui.common.article.ArticleFetchCallback
 import com.marverenic.reader.ui.common.article.ArticleReadCallback
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 
 class StreamViewModel(context: Context,
                       stream: Stream? = null,
@@ -20,10 +26,30 @@ class StreamViewModel(context: Context,
             adapter.stream = value
         }
 
+    var refreshing: Boolean = (stream == null)
+        set(value) {
+            if (value != field) {
+                refreshSubject.onNext(value)
+                field = value
+                notifyPropertyChanged(BR.refreshing)
+            }
+        }
+        @Bindable get() = field
+
+    private val refreshSubject = BehaviorSubject.createDefault(refreshing)
+
     val adapter: ArticleAdapter by lazy(LazyThreadSafetyMode.NONE) {
         ArticleAdapter(entries, readCallback, fetchCallback)
     }
 
     val layoutManager: LinearLayoutManager = LinearLayoutManager(context)
+
+    val swipeRefreshColors = intArrayOf(
+            ContextCompat.getColor(context, R.color.colorPrimary),
+            ContextCompat.getColor(context, R.color.colorPrimaryDark),
+            ContextCompat.getColor(context, R.color.colorAccent)
+    )
+
+    fun getRefreshObservable(): Observable<Boolean> = refreshSubject
 
 }
