@@ -54,16 +54,31 @@ class StreamFragment : ToolbarFragment() {
                 fetchCallback = { rssStore.loadMoreArticles(it) })
 
         binding.viewModel = viewModel
+        loadArticles(viewModel)
+        setupRefreshListener(viewModel)
 
+        return binding.root
+    }
+
+    private fun loadArticles(viewModel: StreamViewModel) {
         rssStore.getStream(streamId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
                 .subscribe({ stream ->
                     viewModel.entries = stream
+                    viewModel.refreshing = false
                 })
+    }
 
-        return binding.root
+    private fun setupRefreshListener(viewModel: StreamViewModel) {
+        viewModel.getRefreshObservable()
+                .distinctUntilChanged()
+                .subscribe({ refreshing ->
+                    if (refreshing) {
+                        rssStore.refreshStream(streamId)
+                    }
+                })
     }
 
 }

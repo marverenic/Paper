@@ -8,10 +8,18 @@
             type="com.marverenic.reader.ui.stream.StreamViewModel"/>
     </data>
 
-    <android.support.v7.widget.RecyclerView
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:adapter="@{viewModel.adapter}"
-        app:layoutManager="@{viewModel.layoutManager}"/>
+        app:colorScheme="@{viewModel.swipeRefreshColors}"
+        app:refreshing="@={viewModel.refreshing}">
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:adapter="@{viewModel.adapter}"
+            app:layoutManager="@{viewModel.layoutManager}"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </layout>

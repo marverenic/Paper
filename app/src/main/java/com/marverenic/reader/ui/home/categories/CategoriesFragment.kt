@@ -34,19 +34,34 @@ class CategoriesFragment : HomeFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_categories, container, false)
-        binding.viewModel = CategoriesViewModel(context)
+        val viewModel = CategoriesViewModel(context)
 
+        binding.viewModel = viewModel
+        loadCategories(viewModel)
+        setupRefreshListener(viewModel)
+
+        return binding.root
+    }
+
+    private fun loadCategories(viewModel: CategoriesViewModel) {
         rssStore.getAllCategories()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(bindToLifecycle())
                 .subscribe({ categories ->
-                    binding.viewModel?.categories = categories
-                }, { error ->
-                    error.printStackTrace()
+                    viewModel.categories = categories
+                    viewModel.refreshing = false
                 })
+    }
 
-        return binding.root
+    private fun setupRefreshListener(viewModel: CategoriesViewModel) {
+        viewModel.getRefreshObservable()
+                .distinctUntilChanged()
+                .subscribe({ refreshing ->
+                    if (refreshing) {
+                        rssStore.refreshCategories()
+                    }
+                })
     }
 
 }

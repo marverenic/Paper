@@ -32,15 +32,27 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
-    override fun getStream(streamId: String): Observable<Stream> {
-        val loader = streams[streamId] ?: RxLoader(rssDatabase.getStream(streamId)) {
+    private fun getStreamLoader(streamId: String): RxLoader<Stream> {
+        return streams[streamId] ?: RxLoader(rssDatabase.getStream(streamId)) {
             service.getStream(authManager.getFeedlyAuthToken(), streamId, STREAM_LOAD_SIZE)
                     .unwrapResponse()
                     .doOnSuccess { rssDatabase.insertStream(it) }
         }.also { streams[streamId] = it }
-
-        return loader.getOrComputeValue()
     }
+
+    override fun getStream(streamId: String) = getStreamLoader(streamId).getOrComputeValue()
+
+    override fun refreshStream(streamId: String) {
+        getStreamLoader(streamId).computeValue()
+    }
+
+    override fun refreshAllArticles() = refreshStream(allArticlesStreamId)
+
+    override fun refreshCategories() {
+        categories.computeValue()
+    }
+
+    override fun isLoadingStream(streamId: String) = getStreamLoader(streamId).isComputingValue()
 
     override fun loadMoreArticles(stream: Stream) {
         if (stream.continuation == null) {
@@ -92,18 +104,26 @@ private class RxLoader<T>(default: T? = null, val load: () -> Single<T>) {
     private val value: BehaviorSubject<T> = default?.let { BehaviorSubject.createDefault(it) }
             ?: BehaviorSubject.create()
 
-    val isLoaded: Boolean
-        get() = value.hasValue()
+    private val isLoading: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
 
     fun computeValue(): Observable<T> {
         load().subscribe(value::onNext)
+        isLoading.take(1).subscribe { loading ->
+            if (!loading) {
+                isLoading.onNext(true)
+                load().doOnEvent { _, _ -> isLoading.onNext(false) }
+                        .subscribe(value::onNext)
+            }
+        }
         return value
     }
 
     fun getOrComputeValue(): Observable<T> {
-        return if (!isLoaded) computeValue()
+        return if (!value.hasValue()) computeValue()
         else value
     }
+
+    fun isComputingValue(): Observable<Boolean> = isLoading
 
     fun getValue(): T? = if (value.hasValue()) value.value else null
 
