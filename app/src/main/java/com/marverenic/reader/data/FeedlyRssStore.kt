@@ -45,6 +45,10 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     override fun refreshAllArticles() = refreshStream(allArticlesStreamId)
 
+    override fun refreshCategories() {
+        categories.computeValue()
+    }
+
     override fun isLoadingStream(streamId: String) = getStreamLoader(streamId).isComputingValue()
 
     override fun loadMoreArticles(stream: Stream) {
