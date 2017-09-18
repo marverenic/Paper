@@ -1,4 +1,4 @@
-package com.marverenic.reader.data.database
+package com.marverenic.reader.data.database.sql
 
 import android.content.ContentValues
 import android.database.Cursor
@@ -23,21 +23,21 @@ private const val ARTICLE_VISUAL_URL_COL = "visual_url"
 private const val ARTICLE_CONTENT_COL = "content"
 
 private const val CREATE_STATEMENT = """
-                CREATE TABLE $ARTICLE_TABLE_NAME (
-                    $ARTICLE_ID_COL                     varchar     PRIMARY KEY,
-                    $ARTICLE_STREAM_ID_COL              varchar,
-                    $ARTICLE_TITLE_COL                  varchar,
-                    $ARTICLE_AUTHOR_COL                 varchar,
-                    $ARTICLE_PUBLISHED_COL              integer,
-                    $ARTICLE_UPDATED_COL                integer,
-                    $ARTICLE_UNREAD_COL                 int(1),
-                    $ARTICLE_ORIGIN_TITLE_COL           varchar,
-                    $ARTICLE_ORIGIN_STREAM_ID_COL       varchar,
-                    $ARTICLE_ORIGIN_URL_COL             varchar,
-                    $ARTICLE_VISUAL_WIDTH_COL           integer,
-                    $ARTICLE_VISUAL_HEIGHT_COL          integer,
-                    $ARTICLE_VISUAL_URL_COL             varchar,
-                    $ARTICLE_CONTENT_COL                text
+                CREATE TABLE ${ARTICLE_TABLE_NAME} (
+                    ${ARTICLE_ID_COL}                     varchar     PRIMARY KEY,
+                    ${ARTICLE_STREAM_ID_COL}              varchar,
+                    ${ARTICLE_TITLE_COL}                  varchar,
+                    ${ARTICLE_AUTHOR_COL}                 varchar,
+                    ${ARTICLE_PUBLISHED_COL}              integer,
+                    ${ARTICLE_UPDATED_COL}                integer,
+                    ${ARTICLE_UNREAD_COL}                 int(1),
+                    ${ARTICLE_ORIGIN_TITLE_COL}           varchar,
+                    ${ARTICLE_ORIGIN_STREAM_ID_COL}       varchar,
+                    ${ARTICLE_ORIGIN_URL_COL}             varchar,
+                    ${ARTICLE_VISUAL_WIDTH_COL}           integer,
+                    ${ARTICLE_VISUAL_HEIGHT_COL}          integer,
+                    ${ARTICLE_VISUAL_URL_COL}             varchar,
+                    ${ARTICLE_CONTENT_COL}                text
                 );
             """
 
@@ -145,7 +145,7 @@ class ArticleTable(private val linkTable: LinkTable,
     }
 
     fun findByStream(streamId: String) = query(
-                selection = "$ARTICLE_STREAM_ID_COL = ?",
+                selection = "${ARTICLE_STREAM_ID_COL} = ?",
                 selectionArgs = arrayOf(streamId))
             .map(ArticleRow::article)
 

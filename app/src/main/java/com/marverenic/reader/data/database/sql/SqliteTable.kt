@@ -1,4 +1,4 @@
-package com.marverenic.reader.data.database
+package com.marverenic.reader.data.database.sql
 
 import android.content.ContentValues
 import android.database.Cursor

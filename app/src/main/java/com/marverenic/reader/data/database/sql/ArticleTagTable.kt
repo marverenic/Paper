@@ -1,4 +1,4 @@
-package com.marverenic.reader.data.database
+package com.marverenic.reader.data.database.sql
 
 import android.content.ContentValues
 import android.database.Cursor
@@ -11,13 +11,13 @@ private const val ARTICLE_ID_COL = "article_ID"
 private const val TAG_ID_COL = "tag_ID"
 
 private const val CREATE_STATEMENT = """
-                CREATE TABLE $ARTICLE_TAGS_TABLE_NAME(
-                    $ARTICLE_TAG_PAIR_ID_COL            varchar     PRIMARY KEY,
-                    $ARTICLE_ID_COL                     varchar     NOT NULL,
-                    $TAG_ID_COL                         varchar     NOT NULL,
+                CREATE TABLE ${ARTICLE_TAGS_TABLE_NAME}(
+                    ${ARTICLE_TAG_PAIR_ID_COL}            varchar     PRIMARY KEY,
+                    ${ARTICLE_ID_COL}                     varchar     NOT NULL,
+                    ${TAG_ID_COL}                         varchar     NOT NULL,
 
-                    FOREIGN KEY($ARTICLE_ID_COL)    REFERENCES $ARTICLE_TABLE_NAME,
-                    FOREIGN KEY($TAG_ID_COL)        REFERENCES $TAG_TABLE_NAME
+                    FOREIGN KEY(${ARTICLE_ID_COL})    REFERENCES ${ARTICLE_TABLE_NAME},
+                    FOREIGN KEY(${TAG_ID_COL})        REFERENCES ${TAG_TABLE_NAME}
                 );
     """
 
@@ -54,7 +54,7 @@ class ArticleTagTable(db: SQLiteDatabase) : SqliteTable<ArticleTagRow>(db) {
     }
 
     fun getTagIdsForArticle(articleId: String) = query(
-                selection = "$ARTICLE_ID_COL = ?",
+                selection = "${ARTICLE_ID_COL} = ?",
                 selectionArgs = arrayOf(articleId))
             .map(ArticleTagRow::tagId)
 

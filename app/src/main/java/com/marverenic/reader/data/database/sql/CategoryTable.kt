@@ -1,4 +1,4 @@
-package com.marverenic.reader.data.database
+package com.marverenic.reader.data.database.sql
 
 import android.content.ContentValues
 import android.database.Cursor
@@ -11,9 +11,9 @@ private const val CATEGORY_ID_COL = "_ID"
 private const val CATEGORY_LABEL_COL = "label"
 
 private const val CREATE_STATEMENT = """
-                CREATE TABLE $CATEGORY_TABLE_NAME(
-                    $CATEGORY_ID_COL                    varchar     PRIMARY KEY,
-                    $CATEGORY_LABEL_COL                 varchar
+                CREATE TABLE ${CATEGORY_TABLE_NAME}(
+                    ${CATEGORY_ID_COL}                    varchar     PRIMARY KEY,
+                    ${CATEGORY_LABEL_COL}                 varchar
                 );
             """
 

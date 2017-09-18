@@ -1,4 +1,4 @@
-package com.marverenic.reader.data.database
+package com.marverenic.reader.data.database.sql
 
 import android.content.ContentValues
 import android.database.Cursor
@@ -14,10 +14,10 @@ private const val STREAM_CONTINUATION_COL = "continuation"
 private const val STREAM_TITLE_COL = "title"
 
 private const val CREATE_STATEMENT = """
-                CREATE TABLE $STREAM_TABLE_NAME (
-                    $STREAM_ID_COL                      varchar     PRIMARY KEY,
-                    $STREAM_CONTINUATION_COL            varchar,
-                    $STREAM_TITLE_COL                   varchar
+                CREATE TABLE ${STREAM_TABLE_NAME} (
+                    ${STREAM_ID_COL}                      varchar     PRIMARY KEY,
+                    ${STREAM_CONTINUATION_COL}            varchar,
+                    ${STREAM_TITLE_COL}                   varchar
                 );
             """
 
@@ -65,7 +65,7 @@ class StreamTable(db: SQLiteDatabase) : SqliteTable<StreamMetadata>(db) {
     }
 
     fun findById(id: String) = queryFirst(
-            selection = "$STREAM_ID_COL = ?",
+            selection = "${STREAM_ID_COL} = ?",
             selectionArgs = arrayOf(id)
     )
 

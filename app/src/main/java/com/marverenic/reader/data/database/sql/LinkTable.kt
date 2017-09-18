@@ -1,4 +1,4 @@
-package com.marverenic.reader.data.database
+package com.marverenic.reader.data.database.sql
 
 import android.content.ContentValues
 import android.database.Cursor
@@ -13,11 +13,11 @@ private const val LINK_TYPE_COL = "type"
 private const val LINK_ARTICLE_ID_COL = "article_ID"
 
 private const val CREATE_STATEMENT = """
-                CREATE TABLE $LINK_TABLE_NAME(
-                    $LINK_ID_COL                    varchar     PRIMARY KEY,
-                    $LINK_HREF_COL                  varchar,
-                    $LINK_TYPE_COL                  varchar,
-                    $LINK_ARTICLE_ID_COL            varchar
+                CREATE TABLE ${LINK_TABLE_NAME}(
+                    ${LINK_ID_COL}                    varchar     PRIMARY KEY,
+                    ${LINK_HREF_COL}                  varchar,
+                    ${LINK_TYPE_COL}                  varchar,
+                    ${LINK_ARTICLE_ID_COL}            varchar
                 );
             """
 
@@ -65,7 +65,7 @@ class LinkTable(db: SQLiteDatabase) : SqliteTable<LinkRow>(db) {
     }
 
     fun findByArticle(articleId: String) = query(
-                selection = "$LINK_ARTICLE_ID_COL = ?",
+                selection = "${LINK_ARTICLE_ID_COL} = ?",
                 selectionArgs = arrayOf(articleId))
             .map(LinkRow::link)
 
