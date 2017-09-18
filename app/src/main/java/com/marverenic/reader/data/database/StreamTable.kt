@@ -55,7 +55,7 @@ class StreamTable(db: SQLiteDatabase) : SqliteTable<StreamMetadata>(db) {
     }
 
     override fun readValueFromCursor(cursor: Cursor) = StreamMetadata(
-            id = cursor.getString(STREAM_TABLE_NAME),
+            id = cursor.getString(STREAM_ID_COL),
             continuation = cursor.getOptionalString(STREAM_CONTINUATION_COL),
             title = cursor.getOptionalString(STREAM_TITLE_COL)
     )
