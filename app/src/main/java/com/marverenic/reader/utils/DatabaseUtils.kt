@@ -37,10 +37,10 @@ inline fun Cursor.forEach(action: (Cursor) -> Unit) {
     }
 }
 
-fun Cursor.getString(columnName: String) = getString(getColumnIndex(columnName))
-fun Cursor.getInt(columnName: String) = getInt(getColumnIndex(columnName))
-fun Cursor.getLong(columnName: String) = getLong(getColumnIndex(columnName))
-fun Cursor.getBoolean(columnName: String) = getInt(getColumnIndex(columnName)) != 0
+fun Cursor.getString(columnName: String) = getString(getColumnIndexOrThrow(columnName))
+fun Cursor.getInt(columnName: String) = getInt(getColumnIndexOrThrow(columnName))
+fun Cursor.getLong(columnName: String) = getLong(getColumnIndexOrThrow(columnName))
+fun Cursor.getBoolean(columnName: String) = getInt(getColumnIndexOrThrow(columnName)) != 0
 
 fun Cursor.getOptionalString(columnName: String): String? {
     val columnIndex = getColumnIndex(columnName)
