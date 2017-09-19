@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.marverenic.reader.data.database.sql.*
+import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Category
 import com.marverenic.reader.model.Stream
 
@@ -26,8 +27,12 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     private val categoryTable = CategoryTable(writableDatabase)
 
-    override fun getStream(streamId: String) =
-            streamTable.findById(streamId)?.toStream(articleTable.findByStream(streamId))
+    override fun getStream(streamId: String): Stream? {
+        return streamTable.findById(streamId)?.let {
+            val articles = articleTable.findByStream(streamId).sortedBy(Article::published)
+            return it.toStream(articles)
+        }
+    }
 
     override fun insertStream(stream: Stream) {
         streamTable.insert(stream)
