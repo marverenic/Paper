@@ -9,6 +9,7 @@ import com.marverenic.reader.model.Stream
 import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
 import java.io.IOException
@@ -33,11 +34,18 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
     override fun getAllCategories() = categories.getOrComputeValue()
 
     private fun getStreamLoader(streamId: String): RxLoader<Stream> {
-        return streams[streamId] ?: RxLoader(rssDatabase.getStream(streamId)) {
+        val cached = rssDatabase.getStream(streamId)
+        return streams[streamId] ?: RxLoader(cached) {
             service.getStream(authManager.getFeedlyAuthToken(), streamId, STREAM_LOAD_SIZE)
                     .unwrapResponse()
-                    .doOnSuccess { rssDatabase.insertStream(it) }
-        }.also { streams[streamId] = it }
+        }.also { loader ->
+            streams[streamId] = loader
+            loader.getObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .skip(if (cached != null) 1 else 0)
+                    .subscribe { stream -> rssDatabase.insertStream(stream) }
+        }
     }
 
     override fun getStream(streamId: String) = getStreamLoader(streamId).getOrComputeValue()
@@ -130,5 +138,7 @@ private class RxLoader<T>(default: T? = null, val load: () -> Single<T>) {
     fun setValue(t: T) {
         subject.onNext(t)
     }
+
+    fun getObservable(): Observable<T> = subject
 
 }
