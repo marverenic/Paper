@@ -101,34 +101,34 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
 
 private class RxLoader<T>(default: T? = null, val load: () -> Single<T>) {
 
-    private val value: BehaviorSubject<T> = default?.let { BehaviorSubject.createDefault(it) }
+    private val subject: BehaviorSubject<T> = default?.let { BehaviorSubject.createDefault(it) }
             ?: BehaviorSubject.create()
 
     private val isLoading: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
 
     fun computeValue(): Observable<T> {
-        load().subscribe(value::onNext)
+        load().subscribe(subject::onNext)
         isLoading.take(1).subscribe { loading ->
             if (!loading) {
                 isLoading.onNext(true)
                 load().doOnEvent { _, _ -> isLoading.onNext(false) }
-                        .subscribe(value::onNext)
+                        .subscribe(subject::onNext)
             }
         }
-        return value
+        return subject
     }
 
     fun getOrComputeValue(): Observable<T> {
-        return if (!value.hasValue()) computeValue()
-        else value
+        return if (!subject.hasValue()) computeValue()
+        else subject
     }
 
     fun isComputingValue(): Observable<Boolean> = isLoading
 
-    fun getValue(): T? = if (value.hasValue()) value.value else null
+    fun getValue(): T? = if (subject.hasValue()) subject.value else null
 
     fun setValue(t: T) {
-        value.onNext(t)
+        subject.onNext(t)
     }
 
 }
