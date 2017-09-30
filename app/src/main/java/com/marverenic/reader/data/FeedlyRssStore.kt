@@ -21,7 +21,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         get() = "user/${authManager.getFeedlyUserId()}/category/global.all"
 
     private val categories = RxLoader {
-        service.getCategories(authManager.getFeedlyAuthToken()).unwrapResponse()
+        authManager.getFeedlyAuthToken().flatMap { service.getCategories(it) }.unwrapResponse()
     }
 
     private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
@@ -32,7 +32,8 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     private fun getStreamLoader(streamId: String): RxLoader<Stream> {
         return streams[streamId] ?: RxLoader {
-            service.getStream(authManager.getFeedlyAuthToken(), streamId, STREAM_LOAD_SIZE)
+            authManager.getFeedlyAuthToken()
+                    .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
         }.also { streams[streamId] = it }
     }
@@ -57,9 +58,8 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         }
 
         streams[stream.id]?.let { loader ->
-            service
-                    .getStreamContinuation(authManager.getFeedlyAuthToken(), stream.id,
-                            stream.continuation, STREAM_LOAD_SIZE)
+            authManager.getFeedlyAuthToken()
+                    .flatMap { service.getStreamContinuation(it, stream.id, stream.continuation, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
                     .subscribe { continuation ->
                         val merged = continuation.copy(items = stream.items + continuation.items)
@@ -73,9 +73,12 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
             return
         }
 
-        service
-                .markArticles(authManager.getFeedlyAuthToken(), ArticleMarkerRequest(
-                        entryIds = listOf(article.id), action = ACTION_READ))
+        authManager.getFeedlyAuthToken()
+                .flatMap {
+                    service.markArticles(it, ArticleMarkerRequest(
+                            entryIds = listOf(article.id),
+                            action = ACTION_READ))
+                }
                 .unwrapResponse()
                 .subscribe()
 
