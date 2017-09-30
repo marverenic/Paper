@@ -27,7 +27,8 @@ android {
         debug {
             buildConfigField 'String', 'DEV_USER_ID', apiKeys.getProperty('feedlyDevUserId', 'null')
             buildConfigField 'String', 'DEV_OAUTH_TOKEN', apiKeys.getProperty('feedlyDevOauthToken', 'null')
-            buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyDevApiKey', 'null')
+            buildConfigField 'String', 'CLIENT_ID', apiKeys.getProperty('feedlyClientId', 'null')
+            buildConfigField 'String', 'CLIENT_SECRET', apiKeys.getProperty('feedlyClientSecret', 'null')
         }
 
         release {
@@ -36,7 +37,8 @@ android {
 
             buildConfigField 'String', 'DEV_USER_ID', 'null'
             buildConfigField 'String', 'DEV_OAUTH_TOKEN', 'null'
-            buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyApiKey', 'null')
+            buildConfigField 'String', 'CLIENT_ID', apiKeys.getProperty('feedlyClientId', 'null')
+            buildConfigField 'String', 'CLIENT_SECRET', apiKeys.getProperty('feedlyClientSecret', 'null')
         }
     }
 }

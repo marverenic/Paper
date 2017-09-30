@@ -4,6 +4,8 @@ import io.reactivex.Single
 
 interface AuthenticationManager {
 
+    val loginUrl: String
+
     fun isLoggedIn(): Single<Boolean>
 
     fun getFeedlyAuthToken(): Single<String>

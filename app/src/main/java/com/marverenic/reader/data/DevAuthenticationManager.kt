@@ -5,6 +5,9 @@ import io.reactivex.Single
 
 class DevAuthenticationManager: AuthenticationManager {
 
+    override val loginUrl: String
+        get() = throw UnsupportedOperationException()
+
     private val authToken: String? = BuildConfig.DEV_OAUTH_TOKEN
     private val userId: String? = BuildConfig.DEV_USER_ID
 
