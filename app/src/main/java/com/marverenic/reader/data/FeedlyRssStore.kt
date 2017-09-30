@@ -17,8 +17,8 @@ private const val STREAM_LOAD_SIZE = 250
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService) : RssStore {
 
-    private val allArticlesStreamId: String
-        get() = "user/${authManager.getFeedlyUserId()}/category/global.all"
+    private val allArticlesStreamId: Single<String>
+        get() = authManager.getFeedlyUserId().map { "user/$it/category/global.all" }
 
     private val categories = RxLoader {
         authManager.getFeedlyAuthToken().flatMap { service.getCategories(it) }.unwrapResponse()
@@ -26,7 +26,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
     private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
 
-    override fun getAllArticles() = getStream(allArticlesStreamId)
+    override fun getAllArticles(): Observable<Stream> = allArticlesStreamId.flatMapObservable { getStream(it) }
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
@@ -44,7 +44,9 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         getStreamLoader(streamId).computeValue()
     }
 
-    override fun refreshAllArticles() = refreshStream(allArticlesStreamId)
+    override fun refreshAllArticles() {
+        allArticlesStreamId.subscribe { streamId -> refreshStream(streamId) }
+    }
 
     override fun refreshCategories() {
         categories.computeValue()
