@@ -9,7 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-const val BASE_URL = "https://cloud.feedly.com/v3/"
+const val BASE_URL = "https://sandbox7.feedly.com/v3/"
 
 fun createFeedlyApi(): FeedlyService = Retrofit.Builder()
         .apply {
