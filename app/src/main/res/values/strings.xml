@@ -2,6 +2,10 @@
 
     <string name="app_name">Paper</string>
 
+    <string name="login_header">Log in to Feedly</string>
+    <string name="login_description">To start using Paper, log in with your Feedly account</string>
+    <string name="login_button">Log in</string>
+
     <string name="all_articles_header">All Articles</string>
     <string name="categories_header">Categories</string>
 
