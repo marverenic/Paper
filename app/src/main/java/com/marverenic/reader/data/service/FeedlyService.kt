@@ -29,4 +29,9 @@ interface FeedlyService {
     @POST("auth/token")
     fun activateAuthCode(@Body request: AuthCodeActivationRequest):
             Single<Response<AuthCodeActivationResponse>>
+
+    @POST("auth/token")
+    fun refreshAuthCode(@Body request: AuthCodeRefreshRequest):
+            Single<Response<AuthCodeRefreshResponse>>
+
 }
