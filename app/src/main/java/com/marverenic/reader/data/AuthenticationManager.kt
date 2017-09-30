@@ -5,6 +5,7 @@ import io.reactivex.Single
 interface AuthenticationManager {
 
     val loginUrl: String
+    val redirectUrlPrefix: String
 
     fun isLoggedIn(): Single<Boolean>
 
@@ -12,6 +13,6 @@ interface AuthenticationManager {
 
     fun getFeedlyUserId(): Single<String>
 
-    fun logIn(callbackUrl: String)
+    fun logIn(callbackUrl: String): Single<Boolean>
 
 }

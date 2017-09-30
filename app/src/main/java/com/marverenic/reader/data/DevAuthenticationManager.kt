@@ -8,6 +8,9 @@ class DevAuthenticationManager: AuthenticationManager {
     override val loginUrl: String
         get() = throw UnsupportedOperationException()
 
+    override val redirectUrlPrefix: String
+        get() = throw UnsupportedOperationException()
+
     private val authToken: String? = BuildConfig.DEV_OAUTH_TOKEN
     private val userId: String? = BuildConfig.DEV_USER_ID
 
@@ -23,7 +26,7 @@ class DevAuthenticationManager: AuthenticationManager {
                 ?: throw RuntimeException("Invalid dev username")
     }
 
-    override fun logIn(callbackUrl: String) {
+    override fun logIn(callbackUrl: String): Single<Boolean> {
         throw UnsupportedOperationException()
     }
 

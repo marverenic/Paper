@@ -26,4 +26,7 @@ interface FeedlyService {
     fun markArticles(@Header("Authorization") token: String,
                      @Body request: ArticleMarkerRequest): Single<Response<Unit>>
 
+    @POST("auth/token")
+    fun activateAuthCode(@Body request: AuthCodeActivationRequest):
+            Single<Response<AuthCodeActivationResponse>>
 }
