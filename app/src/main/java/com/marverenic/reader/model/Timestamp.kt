@@ -8,5 +8,7 @@ import android.text.format.DateUtils
  */
 typealias Timestamp = Long
 
+typealias Seconds = Long
+
 fun Timestamp.toDateString(context: Context)
         = DateUtils.getRelativeTimeSpanString(context, this).toString()

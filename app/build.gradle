@@ -5,7 +5,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion rootProject.targetSdkVersion
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "26.0.1"
 
     defaultConfig {
         applicationId "com.marverenic.reader"
@@ -27,7 +27,8 @@ android {
         debug {
             buildConfigField 'String', 'DEV_USER_ID', apiKeys.getProperty('feedlyDevUserId', 'null')
             buildConfigField 'String', 'DEV_OAUTH_TOKEN', apiKeys.getProperty('feedlyDevOauthToken', 'null')
-            buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyDevApiKey', 'null')
+            buildConfigField 'String', 'CLIENT_ID', apiKeys.getProperty('feedlyClientId', 'null')
+            buildConfigField 'String', 'CLIENT_SECRET', apiKeys.getProperty('feedlyClientSecret', 'null')
         }
 
         release {
@@ -36,7 +37,8 @@ android {
 
             buildConfigField 'String', 'DEV_USER_ID', 'null'
             buildConfigField 'String', 'DEV_OAUTH_TOKEN', 'null'
-            buildConfigField 'String', 'API_KEY', apiKeys.getProperty('feedlyApiKey', 'null')
+            buildConfigField 'String', 'CLIENT_ID', apiKeys.getProperty('feedlyClientId', 'null')
+            buildConfigField 'String', 'CLIENT_SECRET', apiKeys.getProperty('feedlyClientSecret', 'null')
         }
     }
 }
@@ -65,7 +67,7 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-moshi:$rootProject.retrofitVersion"
     implementation "com.squareup.moshi:moshi:1.5.0"
 
-    implementation "io.reactivex.rxjava2:rxjava:2.1.3"
+    implementation "io.reactivex.rxjava2:rxjava:2.1.4"
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.1.0'
     implementation 'com.trello.rxlifecycle2:rxlifecycle-android:2.1.0'

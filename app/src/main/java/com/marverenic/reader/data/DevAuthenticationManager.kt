@@ -1,15 +1,33 @@
 package com.marverenic.reader.data
 
 import com.marverenic.reader.BuildConfig
+import io.reactivex.Single
 
 class DevAuthenticationManager: AuthenticationManager {
 
-    override fun isLoggedIn() = true
+    override val loginUrl: String
+        get() = throw UnsupportedOperationException()
 
-    override fun getFeedlyAuthToken() = BuildConfig.DEV_OAUTH_TOKEN.takeIf { !it.isNullOrBlank() }
-            ?: throw RuntimeException("Invalid dev oauth key")
+    override val redirectUrlPrefix: String
+        get() = throw UnsupportedOperationException()
 
-    override fun getFeedlyUserId() = BuildConfig.DEV_USER_ID.takeIf { !it.isNullOrBlank() }
-            ?: throw RuntimeException("Invalid dev username")
+    private val authToken: String? = BuildConfig.DEV_OAUTH_TOKEN
+    private val userId: String? = BuildConfig.DEV_USER_ID
+
+    override fun isLoggedIn() = Single.just(true)
+
+    override fun getFeedlyAuthToken(): Single<String> {
+        return authToken.takeIf { !it.isNullOrBlank() }?.let { Single.just(it) }
+                ?: throw RuntimeException("Invalid dev oauth key")
+    }
+
+    override fun getFeedlyUserId(): Single<String> {
+        return userId.takeIf { !it.isNullOrBlank() }?.let { Single.just(it) }
+                ?: throw RuntimeException("Invalid dev username")
+    }
+
+    override fun logIn(callbackUrl: String): Single<Boolean> {
+        throw UnsupportedOperationException()
+    }
 
 }
