@@ -3,6 +3,7 @@ package com.marverenic.reader.data.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.os.Looper
 import com.marverenic.reader.data.database.sql.*
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Category
@@ -27,7 +28,14 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     private val categoryTable = CategoryTable(writableDatabase)
 
+    private fun assertNotMainThread() {
+        require(Looper.myLooper() != Looper.getMainLooper()) {
+            "Database operations should not be performed on the main thread"
+        }
+    }
+
     override fun getStream(streamId: String): Stream? {
+        assertNotMainThread()
         return streamTable.findById(streamId)?.let {
             val articles = articleTable.findByStream(streamId)
                     .sortedByDescending(Article::published)
@@ -36,13 +44,18 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
     }
 
     override fun insertStream(stream: Stream) {
+        assertNotMainThread()
         streamTable.insert(stream)
         articleTable.insertAll(stream.items, stream.id)
     }
 
-    override fun getCategories() = categoryTable.queryAll()
+    override fun getCategories(): List<Category> {
+        assertNotMainThread()
+        return categoryTable.queryAll()
+    }
 
     override fun setCategories(categories: List<Category>) {
+        assertNotMainThread()
         categoryTable.insertAll(categories)
     }
 
