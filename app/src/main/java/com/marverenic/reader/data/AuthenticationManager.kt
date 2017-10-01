@@ -1,11 +1,18 @@
 package com.marverenic.reader.data
 
+import io.reactivex.Single
+
 interface AuthenticationManager {
 
-    fun isLoggedIn(): Boolean
+    val loginUrl: String
+    val redirectUrlPrefix: String
 
-    fun getFeedlyAuthToken(): String
+    fun isLoggedIn(): Single<Boolean>
 
-    fun getFeedlyUserId(): String
+    fun getFeedlyAuthToken(): Single<String>
+
+    fun getFeedlyUserId(): Single<String>
+
+    fun logIn(callbackUrl: String): Single<Boolean>
 
 }

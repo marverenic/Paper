@@ -16,13 +16,16 @@ class SplashActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         ReaderApplication.component(this).inject(this)
 
-        if (authManager.isLoggedIn()) {
-            startActivity(HomeActivity.newIntent(this))
-        } else {
-            startActivity(LoginActivity.newIntent(this))
-        }
+        authManager.isLoggedIn()
+                .subscribe{ loggedIn ->
+                    if (loggedIn) {
+                        startActivity(HomeActivity.newIntent(this))
+                    } else {
+                        startActivity(LoginActivity.newIntent(this))
+                    }
+                    finish()
+                }
 
-        finish()
     }
 
 }
