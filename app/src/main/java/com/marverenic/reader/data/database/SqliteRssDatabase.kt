@@ -29,7 +29,8 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     override fun getStream(streamId: String): Stream? {
         return streamTable.findById(streamId)?.let {
-            val articles = articleTable.findByStream(streamId).sortedBy(Article::published)
+            val articles = articleTable.findByStream(streamId)
+                    .sortedByDescending(Article::published)
             return it.toStream(articles)
         }
     }
