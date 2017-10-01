@@ -59,6 +59,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
             authManager.getFeedlyAuthToken()
                     .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
+                    .map { it.copy(items = it.items.sortedByDescending(Article::timestamp)) }
         }.also { loader ->
             streams[streamId] = loader
             loader.getObservable()
@@ -95,7 +96,8 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
                     .flatMap { service.getStreamContinuation(it, stream.id, stream.continuation, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
                     .subscribe { continuation ->
-                        val merged = continuation.copy(items = stream.items + continuation.items)
+                        val combinedArticles = stream.items + continuation.items
+                        val merged = continuation.copy(items = combinedArticles.sortedByDescending(Article::timestamp))
                         loader.setValue(merged)
                     }
         }

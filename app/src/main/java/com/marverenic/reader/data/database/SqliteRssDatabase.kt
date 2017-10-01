@@ -38,7 +38,7 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
         assertNotMainThread()
         return streamTable.findById(streamId)?.let {
             val articles = articleTable.findByStream(streamId)
-                    .sortedByDescending(Article::published)
+                    .sortedByDescending(Article::timestamp)
             return it.toStream(articles)
         }
     }
