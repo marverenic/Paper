@@ -34,8 +34,10 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
     override fun getAllCategories() = categories.getOrComputeValue()
 
     private fun getStreamLoader(streamId: String): RxLoader<Stream> {
+        streams[streamId]?.let { return it }
+
         val cached = rssDatabase.getStream(streamId)
-        return streams[streamId] ?: RxLoader(cached) {
+        return RxLoader(cached) {
             authManager.getFeedlyAuthToken()
                     .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
