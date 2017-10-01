@@ -8,7 +8,6 @@ import com.marverenic.reader.data.service.FeedlyService
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Stream
 import com.marverenic.reader.utils.replaceAll
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
@@ -134,16 +133,12 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
             else throw IOException("${it.code()}: ${it.errorBody()?.string()}")
         }
 
-private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Maybe<T> {
-    return Observable.fromCallable {
-                return@fromCallable listOf(load()).filterNotNull()
-            }
-            .flatMap { Observable.fromIterable(it) }
-            .firstElement()
+private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Single<T> {
+    return Single.fromCallable { load() ?: throw NoSuchElementException("No value returned") }
             .subscribeOn(Schedulers.io())
 }
 
-private class RxLoader<T>(default: Maybe<T>? = null, val load: () -> Single<T>) {
+private class RxLoader<T>(default: Single<T>? = null, val load: () -> Single<T>) {
 
     private val subject: BehaviorSubject<T> = BehaviorSubject.create()
 
@@ -156,6 +151,7 @@ private class RxLoader<T>(default: Maybe<T>? = null, val load: () -> Single<T>) 
             isLoading.onNext(true)
             workerDisposable = it.subscribe(this::setValue) { t ->
                 Log.e("RxLoader", "Failed to load default value", t)
+                isLoading.onNext(false)
                 computeValue()
             }
         }
