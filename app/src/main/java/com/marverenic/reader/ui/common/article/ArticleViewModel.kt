@@ -36,7 +36,7 @@ class ArticleViewModel(private val context: Context,
         @Bindable get() = article.summary?.summary().orEmpty()
 
     val date: String
-        @Bindable get() = article.published.toDateString(context)
+        @Bindable get() = article.timestamp.toDateString(context)
 
     val source: String?
         @Bindable get() = article.origin?.title

@@ -55,7 +55,6 @@ class StreamFragment : ToolbarFragment() {
 
         binding.viewModel = viewModel
         loadArticles(viewModel)
-        setupRefreshListener(viewModel)
 
         return binding.root
     }
@@ -68,6 +67,7 @@ class StreamFragment : ToolbarFragment() {
                 .subscribe({ stream ->
                     viewModel.entries = stream
                     viewModel.refreshing = false
+                    setupRefreshListener(viewModel)
                 })
     }
 

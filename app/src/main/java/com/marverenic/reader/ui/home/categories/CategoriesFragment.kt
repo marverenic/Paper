@@ -38,7 +38,6 @@ class CategoriesFragment : HomeFragment() {
 
         binding.viewModel = viewModel
         loadCategories(viewModel)
-        setupRefreshListener(viewModel)
 
         return binding.root
     }
@@ -51,6 +50,7 @@ class CategoriesFragment : HomeFragment() {
                 .subscribe({ categories ->
                     viewModel.categories = categories
                     viewModel.refreshing = false
+                    setupRefreshListener(viewModel)
                 })
     }
 

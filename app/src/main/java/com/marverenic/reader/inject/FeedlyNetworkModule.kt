@@ -1,6 +1,7 @@
 package com.marverenic.reader.inject
 
 import com.marverenic.reader.data.*
+import com.marverenic.reader.data.database.RssDatabase
 import com.marverenic.reader.data.service.FeedlyService
 import com.marverenic.reader.data.service.createFeedlyApi
 import dagger.Module
@@ -21,7 +22,9 @@ class FeedlyNetworkModule {
 
     @Provides
     @Singleton
-    fun provideRssStore(authManager: AuthenticationManager, service: FeedlyService): RssStore
-            = FeedlyRssStore(authManager, service)
+    fun provideRssStore(authManager: AuthenticationManager,
+                        service: FeedlyService,
+                        rssDatabase: RssDatabase): RssStore
+            = FeedlyRssStore(authManager, service, rssDatabase)
 
 }

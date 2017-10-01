@@ -40,7 +40,6 @@ class AllArticlesFragment : HomeFragment() {
 
         binding.viewModel = viewModel
         loadArticles(viewModel)
-        setupRefreshListener(viewModel)
 
         return binding.root
     }
@@ -53,6 +52,7 @@ class AllArticlesFragment : HomeFragment() {
                 .subscribe({ stream ->
                     viewModel.stream = stream
                     viewModel.refreshing = false
+                    setupRefreshListener(viewModel)
                 })
     }
 

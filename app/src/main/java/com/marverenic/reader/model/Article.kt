@@ -13,4 +13,9 @@ data class Article(
         val alternate: List<Link>?,
         val tags: List<Tag>?,
         val keywords: List<String>?
-)
+) {
+
+    val timestamp: Timestamp
+        get() = Math.max(published, updated ?: 0)
+
+}

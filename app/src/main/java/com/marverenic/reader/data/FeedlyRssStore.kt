@@ -1,5 +1,7 @@
 package com.marverenic.reader.data
 
+import android.util.Log
+import com.marverenic.reader.data.database.RssDatabase
 import com.marverenic.reader.data.service.ACTION_READ
 import com.marverenic.reader.data.service.ArticleMarkerRequest
 import com.marverenic.reader.data.service.FeedlyService
@@ -8,6 +10,8 @@ import com.marverenic.reader.model.Stream
 import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
 import java.io.IOException
@@ -15,13 +19,23 @@ import java.io.IOException
 private const val STREAM_LOAD_SIZE = 250
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
-                     private val service: FeedlyService) : RssStore {
+                     private val service: FeedlyService,
+                     private val rssDatabase: RssDatabase) : RssStore {
 
     private val allArticlesStreamId: Single<String>
         get() = authManager.getFeedlyUserId().map { "user/$it/category/global.all" }
 
-    private val categories = RxLoader {
-        authManager.getFeedlyAuthToken().flatMap { service.getCategories(it) }.unwrapResponse()
+    private val categories = RxLoader(loadAsync { rssDatabase.getCategories() }) {
+        authManager.getFeedlyAuthToken()
+                .flatMap { service.getCategories(it) }
+                .unwrapResponse()
+                .also {
+                    it.subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io())
+                            .subscribe { categories ->
+                                rssDatabase.setCategories(categories)
+                            }
+                }
     }
 
     private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
@@ -31,11 +45,28 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
     override fun getAllCategories() = categories.getOrComputeValue()
 
     private fun getStreamLoader(streamId: String): RxLoader<Stream> {
-        return streams[streamId] ?: RxLoader {
+        streams[streamId]?.let { return it }
+
+        var cached = false
+        val cachedStream = loadAsync {
+            val stream = rssDatabase.getStream(streamId)
+            cached = stream != null
+            return@loadAsync stream
+        }
+
+        return RxLoader(cachedStream) {
             authManager.getFeedlyAuthToken()
                     .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
-        }.also { streams[streamId] = it }
+                    .map { it.copy(items = it.items.sortedByDescending(Article::timestamp)) }
+        }.also { loader ->
+            streams[streamId] = loader
+            loader.getObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .skipWhile { cached.also { cached = false } }
+                    .subscribe { stream -> rssDatabase.insertStream(stream) }
+        }
     }
 
     override fun getStream(streamId: String) = getStreamLoader(streamId).getOrComputeValue()
@@ -64,7 +95,8 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
                     .flatMap { service.getStreamContinuation(it, stream.id, stream.continuation, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
                     .subscribe { continuation ->
-                        val merged = continuation.copy(items = stream.items + continuation.items)
+                        val combinedArticles = stream.items + continuation.items
+                        val merged = continuation.copy(items = combinedArticles.sortedByDescending(Article::timestamp))
                         loader.setValue(merged)
                     }
         }
@@ -101,35 +133,59 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
             else throw IOException("${it.code()}: ${it.errorBody()?.string()}")
         }
 
-private class RxLoader<T>(val load: () -> Single<T>) {
+private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Single<T> {
+    return Single.fromCallable { load() ?: throw NoSuchElementException("No value returned") }
+            .subscribeOn(Schedulers.io())
+}
 
-    private var value: BehaviorSubject<T> = BehaviorSubject.create()
+private class RxLoader<T>(default: Single<T>? = null, val load: () -> Single<T>) {
+
+    private val subject: BehaviorSubject<T> = BehaviorSubject.create()
 
     private val isLoading: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
 
+    private var workerDisposable: Disposable? = null
+
+    init {
+        default?.let {
+            isLoading.onNext(true)
+            workerDisposable = it.subscribe(this::setValue) { t ->
+                Log.e("RxLoader", "Failed to load default value", t)
+                isLoading.onNext(false)
+                computeValue()
+            }
+        }
+    }
+
     fun computeValue(): Observable<T> {
-        load().subscribe(value::onNext)
         isLoading.take(1).subscribe { loading ->
             if (!loading) {
                 isLoading.onNext(true)
-                load().doOnEvent { _, _ -> isLoading.onNext(false) }
-                        .subscribe(value::onNext)
+                workerDisposable = load()
+                        .doOnEvent { _, _ -> isLoading.onNext(false) }
+                        .subscribe(this::setValue)
             }
         }
-        return value
+        return subject
     }
 
     fun getOrComputeValue(): Observable<T> {
-        return if (!value.hasValue()) computeValue()
-        else value
+        return if (!subject.hasValue()) computeValue()
+        else subject
     }
 
     fun isComputingValue(): Observable<Boolean> = isLoading
 
-    fun getValue(): T? = if (value.hasValue()) value.value else null
+    fun getValue(): T? = if (subject.hasValue()) subject.value else null
 
     fun setValue(t: T) {
-        value.onNext(t)
+        workerDisposable?.dispose()
+        workerDisposable = null
+
+        subject.onNext(t)
+        isLoading.onNext(false)
     }
+
+    fun getObservable(): Observable<T> = subject
 
 }
