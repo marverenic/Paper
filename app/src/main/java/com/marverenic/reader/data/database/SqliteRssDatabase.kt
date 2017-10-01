@@ -45,9 +45,16 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     override fun insertStream(stream: Stream) {
         assertNotMainThread()
-        streamTable.insert(stream)
-        articleTable.removeAllArticlesInStream(stream.id)
-        articleTable.insertAll(stream.items, stream.id)
+        writableDatabase.beginTransaction()
+        try {
+            streamTable.insert(stream)
+            articleTable.removeAllArticlesInStream(stream.id)
+            articleTable.insertAll(stream.items, stream.id)
+
+            writableDatabase.setTransactionSuccessful()
+        } finally {
+            writableDatabase.endTransaction()
+        }
     }
 
     override fun getCategories(): List<Category> {
@@ -57,8 +64,15 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     override fun setCategories(categories: List<Category>) {
         assertNotMainThread()
-        categoryTable.clear()
-        categoryTable.insertAll(categories)
+        writableDatabase.beginTransaction()
+        try {
+            categoryTable.clear()
+            categoryTable.insertAll(categories)
+
+            writableDatabase.setTransactionSuccessful()
+        } finally {
+            writableDatabase.endTransaction()
+        }
     }
 
     private inner class DatabaseHelper(context: Context)

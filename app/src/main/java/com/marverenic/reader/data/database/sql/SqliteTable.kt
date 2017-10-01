@@ -22,9 +22,15 @@ abstract class SqliteTable<T>(private val db: SQLiteDatabase) {
     }
 
     fun insertAll(rows: Collection<T>) {
-        db.insertAll(tableName, rows) { item ->
-            onInsertRow(item)
-            ContentValues().apply { convertToContentValues(item, this) }
+        db.beginTransaction()
+        try {
+            db.insertAll(tableName, rows) { item ->
+                onInsertRow(item)
+                ContentValues().apply { convertToContentValues(item, this) }
+            }
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
         }
     }
 
@@ -47,7 +53,13 @@ abstract class SqliteTable<T>(private val db: SQLiteDatabase) {
     }
 
     fun remove(selection: String? = null, selectionArgs: Array<String>? = null) {
-        db.delete(tableName, selection, selectionArgs)
+        db.beginTransaction()
+        try {
+            db.delete(tableName, selection, selectionArgs)
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
     }
 
     fun clear() {
