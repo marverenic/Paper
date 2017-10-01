@@ -3,6 +3,7 @@ package com.marverenic.reader.utils
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 
 fun SQLiteDatabase.query(table: String,
                          projection: Array<String>? = null,
@@ -11,7 +12,7 @@ fun SQLiteDatabase.query(table: String,
                          orderBy: String? = null): Cursor
         = query(table, projection, selection, selectionArgs, null, null, orderBy)
 
-fun SQLiteDatabase.insert(table: String, values: ContentValues) = insert(table, null, values)
+fun SQLiteDatabase.insert(table: String, values: ContentValues) = insertWithOnConflict(table, null, values, CONFLICT_REPLACE)
 
 inline fun <T> SQLiteDatabase.insertAll(table: String, items: Collection<T>, convert: (T) -> ContentValues) {
     items.forEach { insert(table, convert(it)) }
