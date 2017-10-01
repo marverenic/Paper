@@ -11,12 +11,12 @@ private const val ARTICLE_KEYWORD_WORD_COL = "keyword"
 private const val ARTICLE_KEYWORD_ARTICLE_COL = "article_ID"
 
 private const val CREATE_STATEMENT = """
-                CREATE TABLE ${ARTICLE_KEYWORD_TABLE_NAME}(
-                    ${ARTICLE_KEYWORD_ID_COL}             varchar     PRIMARY KEY,
-                    ${ARTICLE_KEYWORD_WORD_COL}           varchar,
-                    ${ARTICLE_KEYWORD_ARTICLE_COL}        varchar,
+                CREATE TABLE $ARTICLE_KEYWORD_TABLE_NAME(
+                    $ARTICLE_KEYWORD_ID_COL               varchar     PRIMARY KEY,
+                    $ARTICLE_KEYWORD_WORD_COL             varchar,
+                    $ARTICLE_KEYWORD_ARTICLE_COL          varchar,
 
-                    FOREIGN KEY(${ARTICLE_KEYWORD_ARTICLE_COL}) REFERENCES ${ARTICLE_TABLE_NAME}
+                    FOREIGN KEY($ARTICLE_KEYWORD_ARTICLE_COL) REFERENCES $ARTICLE_TABLE_NAME
                 );
     """
 
@@ -53,7 +53,7 @@ class ArticleKeywordTable(db: SQLiteDatabase) : SqliteTable<ArticleKeywordRow>(d
     }
 
     fun getKeywordsForArticle(articleId: String) = query(
-            selection = "${ARTICLE_KEYWORD_ARTICLE_COL} = ?",
+            selection = "$ARTICLE_KEYWORD_ARTICLE_COL = ?",
             selectionArgs = arrayOf(articleId)
     ).map(ArticleKeywordRow::keyword)
 
