@@ -26,8 +26,17 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
     private val allArticlesStreamId: Single<String>
         get() = authManager.getFeedlyUserId().map { "user/$it/category/global.all" }
 
-    private val categories = RxLoader {
-        authManager.getFeedlyAuthToken().flatMap { service.getCategories(it) }.unwrapResponse()
+    private val categories = RxLoader(loadAsync { rssDatabase.getCategories() }) {
+        authManager.getFeedlyAuthToken()
+                .flatMap { service.getCategories(it) }
+                .unwrapResponse()
+                .also {
+                    it.subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io())
+                            .subscribe { categories ->
+                                rssDatabase.setCategories(categories)
+                            }
+                }
     }
 
     private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
@@ -40,16 +49,11 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         streams[streamId]?.let { return it }
 
         var cached = false
-        val cachedStream = Observable
-                .fromCallable {
-                    val stream = rssDatabase.getStream(streamId)
-                    cached = stream != null
-
-                    return@fromCallable listOf(stream).filterNotNull()
-                }
-                .flatMap { Observable.fromIterable(it) }
-                .firstElement()
-                .subscribeOn(Schedulers.io())
+        val cachedStream = loadAsync {
+            val stream = rssDatabase.getStream(streamId)
+            cached = stream != null
+            return@loadAsync stream
+        }
 
         return RxLoader(cachedStream) {
             authManager.getFeedlyAuthToken()
@@ -127,6 +131,15 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
             if (it.isSuccessful) it.body()
             else throw IOException("${it.code()}: ${it.errorBody()?.string()}")
         }
+
+private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Maybe<T> {
+    return Observable.fromCallable {
+                return@fromCallable listOf(load()).filterNotNull()
+            }
+            .flatMap { Observable.fromIterable(it) }
+            .firstElement()
+            .subscribeOn(Schedulers.io())
+}
 
 private class RxLoader<T>(default: Maybe<T>? = null, val load: () -> Single<T>) {
 
