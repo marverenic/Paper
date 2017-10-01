@@ -46,6 +46,7 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
     override fun insertStream(stream: Stream) {
         assertNotMainThread()
         streamTable.insert(stream)
+        articleTable.removeAllArticlesInStream(stream.id)
         articleTable.insertAll(stream.items, stream.id)
     }
 
@@ -56,6 +57,7 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
 
     override fun setCategories(categories: List<Category>) {
         assertNotMainThread()
+        categoryTable.clear()
         categoryTable.insertAll(categories)
     }
 

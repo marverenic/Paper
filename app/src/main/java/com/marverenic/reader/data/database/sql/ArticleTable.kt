@@ -144,6 +144,10 @@ class ArticleTable(private val linkTable: LinkTable,
         insertAll(articles.map { ArticleRow(it, streamId) })
     }
 
+    fun removeAllArticlesInStream(streamId: String) {
+        remove("$ARTICLE_STREAM_ID_COL = ?", arrayOf(streamId))
+    }
+
     fun findByStream(streamId: String) = query(
                 selection = "${ARTICLE_STREAM_ID_COL} = ?",
                 selectionArgs = arrayOf(streamId))

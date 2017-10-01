@@ -46,6 +46,14 @@ abstract class SqliteTable<T>(private val db: SQLiteDatabase) {
                 }
     }
 
+    fun remove(selection: String? = null, selectionArgs: Array<String>? = null) {
+        db.delete(tableName, selection, selectionArgs)
+    }
+
+    fun clear() {
+        remove()
+    }
+
     protected open fun onInsertRow(row: T) {
         // Do nothing by default.
     }
