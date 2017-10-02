@@ -5,15 +5,20 @@ import com.marverenic.reader.data.service.ACTION_READ
 import com.marverenic.reader.data.service.ArticleMarkerRequest
 import com.marverenic.reader.data.service.FeedlyService
 import com.marverenic.reader.model.Article
+import com.marverenic.reader.model.Seconds
 import com.marverenic.reader.model.Stream
+import com.marverenic.reader.model.toDuration
+import com.marverenic.reader.utils.orEpoch
 import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import org.joda.time.DateTime
 import retrofit2.Response
 import java.io.IOException
 
 private const val STREAM_LOAD_SIZE = 250
+private const val MAX_STREAM_CACHE_AGE: Seconds = 24 * 60 * 60 // 1 day
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService,
@@ -51,7 +56,13 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
             return@loadAsync stream
         }
 
-        return RxLoader(cachedStream) {
+        val isCacheStale = loadAsync {
+            val cacheAge = rssDatabase.getStreamTimestamp(streamId).orEpoch()
+            val expirationDate = cacheAge + MAX_STREAM_CACHE_AGE.toDuration()
+            return@loadAsync DateTime.now() > expirationDate
+        }
+
+        return RxLoader(cachedStream, isCacheStale) {
             authManager.getFeedlyAuthToken()
                     .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()

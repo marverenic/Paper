@@ -6,7 +6,10 @@ import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 
-class RxLoader<T>(default: Single<T>? = null, private val load: () -> Single<T>) {
+class RxLoader<T>(
+        default: Single<T>? = null,
+        recomputeDefault: Single<Boolean> = Single.just(false),
+        private val load: () -> Single<T>) {
 
     private val subject: BehaviorSubject<T> = BehaviorSubject.create()
 
@@ -17,11 +20,18 @@ class RxLoader<T>(default: Single<T>? = null, private val load: () -> Single<T>)
     init {
         default?.let {
             isLoading.onNext(true)
-            workerDisposable = it.subscribe(this::setValue) { t ->
+            workerDisposable = it.subscribe({ defaultValue ->
+                setValue(defaultValue)
+                recomputeDefault.subscribe { recompute ->
+                    if (recompute) {
+                        computeValue()
+                    }
+                }
+            }, { t ->
                 Log.e("RxLoader", "Failed to load default value", t)
                 isLoading.onNext(false)
                 computeValue()
-            }
+            })
         }
     }
 
