@@ -24,7 +24,8 @@ class FeedlyNetworkModule {
     @Singleton
     fun provideRssStore(authManager: AuthenticationManager,
                         service: FeedlyService,
+                        prefs: PreferenceStore,
                         rssDatabase: RssDatabase): RssStore
-            = FeedlyRssStore(authManager, service, rssDatabase)
+            = FeedlyRssStore(authManager, service, prefs, rssDatabase)
 
 }

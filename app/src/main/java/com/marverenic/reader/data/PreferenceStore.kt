@@ -2,6 +2,8 @@ package com.marverenic.reader.data
 
 import android.content.SharedPreferences
 import com.marverenic.reader.model.Timestamp
+import com.marverenic.reader.model.toDate
+import org.joda.time.DateTime
 
 class PreferenceStore(private val prefs: SharedPreferences) {
 
@@ -10,6 +12,7 @@ class PreferenceStore(private val prefs: SharedPreferences) {
         private const val USER_TOKEN_KEY = "authToken"
         private const val REFRESH_TOKEN_KEY = "refreshToken"
         private const val USER_TOKEN_EXPIRATION_KEY = "authTokenExpirationTimestamp"
+        private const val CATEGORY_MODIFIED_TIME_KEY = "lastCategoryRefreshTime"
     }
 
     var userId: String?
@@ -27,5 +30,9 @@ class PreferenceStore(private val prefs: SharedPreferences) {
     var authTokenExpirationTimestamp: Timestamp
         set(value) = prefs.edit().putLong(USER_TOKEN_EXPIRATION_KEY, value).apply()
         get() = prefs.getLong(USER_TOKEN_EXPIRATION_KEY, 0)
+
+    var lastCategoryRefreshTime: DateTime
+        set(value) = prefs.edit().putLong(CATEGORY_MODIFIED_TIME_KEY, value.millis).apply()
+        get() = prefs.getLong(CATEGORY_MODIFIED_TIME_KEY, 0).toDate()
 
 }

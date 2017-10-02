@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import com.marverenic.reader.inject.ContextModule
 import com.marverenic.reader.inject.DaggerPaperComponent
 import com.marverenic.reader.inject.PaperGraph
+import net.danlew.android.joda.JodaTimeAndroid
 
 class ReaderApplication : Application() {
 
@@ -23,6 +24,7 @@ class ReaderApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        JodaTimeAndroid.init(this)
         component = DaggerPaperComponent.builder()
                 .contextModule(ContextModule(this))
                 .build()

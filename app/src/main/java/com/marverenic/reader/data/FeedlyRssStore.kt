@@ -1,31 +1,36 @@
 package com.marverenic.reader.data
 
-import android.util.Log
 import com.marverenic.reader.data.database.RssDatabase
 import com.marverenic.reader.data.service.ACTION_READ
 import com.marverenic.reader.data.service.ArticleMarkerRequest
 import com.marverenic.reader.data.service.FeedlyService
 import com.marverenic.reader.model.Article
+import com.marverenic.reader.model.Seconds
 import com.marverenic.reader.model.Stream
+import com.marverenic.reader.model.toDuration
+import com.marverenic.reader.utils.orEpoch
 import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
+import org.joda.time.DateTime
 import retrofit2.Response
 import java.io.IOException
 
 private const val STREAM_LOAD_SIZE = 250
+private const val MAX_STREAM_CACHE_AGE: Seconds = 24 * 60 * 60 // 1 day
+private const val MAX_CATEGORY_CACHE_AGE: Seconds = 7 * 24 * 60 * 60 // 1 week
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService,
+                     private val prefStore: PreferenceStore,
                      private val rssDatabase: RssDatabase) : RssStore {
 
     private val allArticlesStreamId: Single<String>
         get() = authManager.getFeedlyUserId().map { "user/$it/category/global.all" }
 
-    private val categories = RxLoader(loadAsync { rssDatabase.getCategories() }) {
+    private val categories = RxLoader(loadAsync { rssDatabase.getCategories() },
+            isCacheStale(MAX_CATEGORY_CACHE_AGE) { prefStore.lastCategoryRefreshTime }) {
         authManager.getFeedlyAuthToken()
                 .flatMap { service.getCategories(it) }
                 .unwrapResponse()
@@ -54,7 +59,9 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
             return@loadAsync stream
         }
 
-        return RxLoader(cachedStream) {
+        val stale = isCacheStale(MAX_STREAM_CACHE_AGE) { rssDatabase.getStreamTimestamp(streamId) }
+
+        return RxLoader(cachedStream, stale) {
             authManager.getFeedlyAuthToken()
                     .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
@@ -138,54 +145,9 @@ private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Single<T> {
             .subscribeOn(Schedulers.io())
 }
 
-private class RxLoader<T>(default: Single<T>? = null, val load: () -> Single<T>) {
-
-    private val subject: BehaviorSubject<T> = BehaviorSubject.create()
-
-    private val isLoading: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
-
-    private var workerDisposable: Disposable? = null
-
-    init {
-        default?.let {
-            isLoading.onNext(true)
-            workerDisposable = it.subscribe(this::setValue) { t ->
-                Log.e("RxLoader", "Failed to load default value", t)
-                isLoading.onNext(false)
-                computeValue()
-            }
-        }
+private inline fun isCacheStale(maxAge: Seconds, crossinline age: () -> DateTime?): Single<Boolean> {
+    return Single.fromCallable {
+        val expirationDate = age().orEpoch() + maxAge.toDuration()
+        return@fromCallable DateTime.now() > expirationDate
     }
-
-    fun computeValue(): Observable<T> {
-        isLoading.take(1).subscribe { loading ->
-            if (!loading) {
-                isLoading.onNext(true)
-                workerDisposable = load()
-                        .doOnEvent { _, _ -> isLoading.onNext(false) }
-                        .subscribe(this::setValue)
-            }
-        }
-        return subject
-    }
-
-    fun getOrComputeValue(): Observable<T> {
-        return if (!subject.hasValue()) computeValue()
-        else subject
-    }
-
-    fun isComputingValue(): Observable<Boolean> = isLoading
-
-    fun getValue(): T? = if (subject.hasValue()) subject.value else null
-
-    fun setValue(t: T) {
-        workerDisposable?.dispose()
-        workerDisposable = null
-
-        subject.onNext(t)
-        isLoading.onNext(false)
-    }
-
-    fun getObservable(): Observable<T> = subject
-
 }
