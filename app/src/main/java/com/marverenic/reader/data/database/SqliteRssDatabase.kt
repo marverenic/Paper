@@ -8,6 +8,8 @@ import com.marverenic.reader.data.database.sql.*
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.Category
 import com.marverenic.reader.model.Stream
+import com.marverenic.reader.model.toDate
+import org.joda.time.DateTime
 
 private const val DATABASE_NAME = "feedly.db"
 private const val DATABASE_VERSION = 1
@@ -41,6 +43,11 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
                     .sortedByDescending(Article::timestamp)
             return it.toStream(articles)
         }
+    }
+
+    override fun getStreamTimestamp(streamId: String): DateTime? {
+        assertNotMainThread()
+        return streamTable.findById(streamId)?.modified?.toDate()
     }
 
     override fun insertStream(stream: Stream) {
