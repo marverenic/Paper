@@ -19,15 +19,18 @@ import java.io.IOException
 
 private const val STREAM_LOAD_SIZE = 250
 private const val MAX_STREAM_CACHE_AGE: Seconds = 24 * 60 * 60 // 1 day
+private const val MAX_CATEGORY_CACHE_AGE: Seconds = 7 * 24 * 60 * 60 // 1 week
 
 class FeedlyRssStore(private val authManager: AuthenticationManager,
                      private val service: FeedlyService,
+                     private val prefStore: PreferenceStore,
                      private val rssDatabase: RssDatabase) : RssStore {
 
     private val allArticlesStreamId: Single<String>
         get() = authManager.getFeedlyUserId().map { "user/$it/category/global.all" }
 
-    private val categories = RxLoader(loadAsync { rssDatabase.getCategories() }) {
+    private val categories = RxLoader(loadAsync { rssDatabase.getCategories() },
+            isCacheStale(MAX_CATEGORY_CACHE_AGE) { prefStore.lastCategoryRefreshTime }) {
         authManager.getFeedlyAuthToken()
                 .flatMap { service.getCategories(it) }
                 .unwrapResponse()
@@ -56,13 +59,9 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
             return@loadAsync stream
         }
 
-        val isCacheStale = loadAsync {
-            val cacheAge = rssDatabase.getStreamTimestamp(streamId).orEpoch()
-            val expirationDate = cacheAge + MAX_STREAM_CACHE_AGE.toDuration()
-            return@loadAsync DateTime.now() > expirationDate
-        }
+        val stale = isCacheStale(MAX_STREAM_CACHE_AGE) { rssDatabase.getStreamTimestamp(streamId) }
 
-        return RxLoader(cachedStream, isCacheStale) {
+        return RxLoader(cachedStream, stale) {
             authManager.getFeedlyAuthToken()
                     .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
                     .unwrapResponse()
@@ -144,4 +143,11 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
 private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Single<T> {
     return Single.fromCallable { load() ?: throw NoSuchElementException("No value returned") }
             .subscribeOn(Schedulers.io())
+}
+
+private inline fun isCacheStale(maxAge: Seconds, crossinline age: () -> DateTime?): Single<Boolean> {
+    return Single.fromCallable {
+        val expirationDate = age().orEpoch() + maxAge.toDuration()
+        return@fromCallable DateTime.now() > expirationDate
+    }
 }
