@@ -39,9 +39,7 @@ class RxLoader<T>(
         isLoading.take(1).subscribe { loading ->
             if (!loading) {
                 isLoading.onNext(true)
-                workerDisposable = load()
-                        .doOnEvent { _, _ -> isLoading.onNext(false) }
-                        .subscribe(this::setValue)
+                workerDisposable = load().subscribe(this::setValue)
             }
         }
         return subject
