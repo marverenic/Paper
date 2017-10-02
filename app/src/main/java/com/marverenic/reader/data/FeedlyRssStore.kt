@@ -1,6 +1,5 @@
 package com.marverenic.reader.data
 
-import android.util.Log
 import com.marverenic.reader.data.database.RssDatabase
 import com.marverenic.reader.data.service.ACTION_READ
 import com.marverenic.reader.data.service.ArticleMarkerRequest
@@ -10,9 +9,7 @@ import com.marverenic.reader.model.Stream
 import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import retrofit2.Response
 import java.io.IOException
 
@@ -136,56 +133,4 @@ private fun <T: Any> Single<Response<T>>.unwrapResponse(): Single<T> =
 private inline fun <T: Any> loadAsync(crossinline load: () -> T?): Single<T> {
     return Single.fromCallable { load() ?: throw NoSuchElementException("No value returned") }
             .subscribeOn(Schedulers.io())
-}
-
-private class RxLoader<T>(default: Single<T>? = null, val load: () -> Single<T>) {
-
-    private val subject: BehaviorSubject<T> = BehaviorSubject.create()
-
-    private val isLoading: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
-
-    private var workerDisposable: Disposable? = null
-
-    init {
-        default?.let {
-            isLoading.onNext(true)
-            workerDisposable = it.subscribe(this::setValue) { t ->
-                Log.e("RxLoader", "Failed to load default value", t)
-                isLoading.onNext(false)
-                computeValue()
-            }
-        }
-    }
-
-    fun computeValue(): Observable<T> {
-        isLoading.take(1).subscribe { loading ->
-            if (!loading) {
-                isLoading.onNext(true)
-                workerDisposable = load()
-                        .doOnEvent { _, _ -> isLoading.onNext(false) }
-                        .subscribe(this::setValue)
-            }
-        }
-        return subject
-    }
-
-    fun getOrComputeValue(): Observable<T> {
-        return if (!subject.hasValue()) computeValue()
-        else subject
-    }
-
-    fun isComputingValue(): Observable<Boolean> = isLoading
-
-    fun getValue(): T? = if (subject.hasValue()) subject.value else null
-
-    fun setValue(t: T) {
-        workerDisposable?.dispose()
-        workerDisposable = null
-
-        subject.onNext(t)
-        isLoading.onNext(false)
-    }
-
-    fun getObservable(): Observable<T> = subject
-
 }
