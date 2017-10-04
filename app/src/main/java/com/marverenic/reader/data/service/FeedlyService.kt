@@ -14,7 +14,8 @@ interface FeedlyService {
     @GET("streams/{streamId}/contents")
     fun getStream(@Header("Authorization") token: String,
                   @Path("streamId") streamId: String,
-                  @Query("count") count: Int): Single<Response<Stream>>
+                  @Query("count") count: Int,
+                  @Query("unreadOnly") unreadOnly: Boolean): Single<Response<Stream>>
 
     @GET("streams/{streamId}/contents")
     fun getStreamContinuation(@Header("Authorization") token: String,

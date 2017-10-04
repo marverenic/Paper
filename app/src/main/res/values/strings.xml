@@ -11,4 +11,7 @@
 
     <string name="action_load_more_articles">Load more</string>
 
+    <string name="action_hide_read">Hide read articles</string>
+    <string name="action_disable_hide_read">Show all articles</string>
+
 </resources>
