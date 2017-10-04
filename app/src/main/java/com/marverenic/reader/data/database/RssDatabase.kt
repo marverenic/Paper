@@ -6,11 +6,11 @@ import org.joda.time.DateTime
 
 interface RssDatabase {
 
-    fun getStream(streamId: String): Stream?
+    fun getStream(streamId: String, unreadOnly: Boolean): Stream?
 
-    fun getStreamTimestamp(streamId: String): DateTime?
+    fun getStreamTimestamp(streamId: String, unreadOnly: Boolean): DateTime?
 
-    fun insertStream(stream: Stream)
+    fun insertStream(stream: Stream, unreadOnly: Boolean)
 
     fun getCategories(): List<Category>
 

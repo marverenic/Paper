@@ -59,12 +59,12 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
         var cached = false
         val cachedStream = loadAsync {
-            val stream = rssDatabase.getStream(streamId)
+            val stream = rssDatabase.getStream(streamId, unreadOnly)
             cached = stream != null
             return@loadAsync stream
         }
 
-        val stale = isCacheStale(MAX_STREAM_CACHE_AGE) { rssDatabase.getStreamTimestamp(streamId) }
+        val stale = isCacheStale(MAX_STREAM_CACHE_AGE) { rssDatabase.getStreamTimestamp(streamId, unreadOnly) }
 
         return RxLoader(cachedStream, stale) {
             authManager.getFeedlyAuthToken()
@@ -77,7 +77,7 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io())
                     .skipWhile { cached.also { cached = false } }
-                    .subscribe { stream -> rssDatabase.insertStream(stream) }
+                    .subscribe { stream -> rssDatabase.insertStream(stream, unreadOnly) }
         }
     }
 

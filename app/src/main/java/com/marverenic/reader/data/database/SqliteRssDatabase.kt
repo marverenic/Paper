@@ -36,27 +36,27 @@ class SqliteRssDatabase(context: Context) : RssDatabase {
         }
     }
 
-    override fun getStream(streamId: String): Stream? {
+    override fun getStream(streamId: String, unreadOnly: Boolean): Stream? {
         assertNotMainThread()
-        return streamTable.findById(streamId)?.let {
-            val articles = articleTable.findByStream(streamId)
+        return streamTable.findById(streamId, unreadOnly)?.let {
+            val articles = articleTable.findByStream(streamId, unreadOnly)
                     .sortedByDescending(Article::timestamp)
             return it.toStream(articles)
         }
     }
 
-    override fun getStreamTimestamp(streamId: String): DateTime? {
+    override fun getStreamTimestamp(streamId: String, unreadOnly: Boolean): DateTime? {
         assertNotMainThread()
-        return streamTable.findById(streamId)?.modified?.toDate()
+        return streamTable.findById(streamId, unreadOnly)?.modified?.toDate()
     }
 
-    override fun insertStream(stream: Stream) {
+    override fun insertStream(stream: Stream, unreadOnly: Boolean) {
         assertNotMainThread()
         writableDatabase.beginTransaction()
         try {
-            streamTable.insert(stream)
-            articleTable.removeAllArticlesInStream(stream.id)
-            articleTable.insertAll(stream.items, stream.id)
+            streamTable.insert(stream, unreadOnly)
+            articleTable.removeAllArticlesInStream(stream.id, unreadOnly)
+            articleTable.insertAll(stream.items, stream.id, unreadOnly)
 
             writableDatabase.setTransactionSuccessful()
         } finally {

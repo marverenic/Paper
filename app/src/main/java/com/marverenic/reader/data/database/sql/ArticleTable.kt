@@ -9,6 +9,7 @@ import com.marverenic.reader.utils.*
 const val ARTICLE_TABLE_NAME = "articles"
 private const val ARTICLE_ID_COL = "_ID"
 private const val ARTICLE_STREAM_ID_COL = "stream_ID"
+private const val ARTICLE_STREAM_UNREAD_COL = "stream_unread_only"
 private const val ARTICLE_TITLE_COL = "title"
 private const val ARTICLE_AUTHOR_COL = "author"
 private const val ARTICLE_PUBLISHED_COL = "published"
@@ -26,6 +27,7 @@ private const val CREATE_STATEMENT = """
                 CREATE TABLE $ARTICLE_TABLE_NAME (
                     $ARTICLE_ID_COL                     varchar     PRIMARY KEY,
                     $ARTICLE_STREAM_ID_COL              varchar,
+                    $ARTICLE_STREAM_UNREAD_COL          int(1),
                     $ARTICLE_TITLE_COL                  varchar,
                     $ARTICLE_AUTHOR_COL                 varchar,
                     $ARTICLE_PUBLISHED_COL              integer,
@@ -69,7 +71,7 @@ private fun Cursor.getContent(): Content? {
     return getOptionalString(ARTICLE_CONTENT_COL)?.let { Content(it) }
 }
 
-data class ArticleRow(val article: Article, val streamId: String)
+data class ArticleRow(val article: Article, val streamId: String, val streamUnreadOnly: Boolean)
 
 class ArticleTable(private val linkTable: LinkTable,
                    private val tagTable: TagTable,
@@ -87,6 +89,7 @@ class ArticleTable(private val linkTable: LinkTable,
 
     override fun convertToContentValues(row: ArticleRow, cv: ContentValues) {
         cv.put(ARTICLE_STREAM_ID_COL, row.streamId)
+        cv.put(ARTICLE_STREAM_UNREAD_COL, row.streamUnreadOnly)
 
         val article = row.article
 
@@ -118,6 +121,7 @@ class ArticleTable(private val linkTable: LinkTable,
         val articleId = cursor.getString(ARTICLE_ID_COL)
         return ArticleRow(
                 streamId = cursor.getString(ARTICLE_STREAM_ID_COL),
+                streamUnreadOnly = cursor.getBoolean(ARTICLE_STREAM_UNREAD_COL),
                 article = Article(
                         id = articleId,
                         title = cursor.getOptionalString(ARTICLE_TITLE_COL),
@@ -136,25 +140,24 @@ class ArticleTable(private val linkTable: LinkTable,
         )
     }
 
-    fun insert(article: Article, streamId: String) {
-        insert(ArticleRow(article, streamId))
+    fun insertAll(articles: Collection<Article>, streamId: String, streamUnreadOnly: Boolean) {
+        insertAll(articles.map { ArticleRow(it, streamId, streamUnreadOnly) })
     }
 
-    fun insertAll(articles: Collection<Article>, streamId: String) {
-        insertAll(articles.map { ArticleRow(it, streamId) })
+    fun removeAllArticlesInStream(streamId: String, streamUnreadOnly: Boolean) {
+        remove(
+                selection = "$ARTICLE_STREAM_ID_COL = ? AND $ARTICLE_STREAM_UNREAD_COL = ?",
+                selectionArgs = arrayOf(streamId, streamUnreadOnly.toInt().toString())
+        )
     }
 
-    fun removeAllArticlesInStream(streamId: String) {
-        remove("$ARTICLE_STREAM_ID_COL = ?", arrayOf(streamId))
-    }
-
-    fun findByStream(streamId: String) = query(
-                selection = "$ARTICLE_STREAM_ID_COL = ?",
-                selectionArgs = arrayOf(streamId))
+    fun findByStream(streamId: String, streamUnreadOnly: Boolean) = query(
+                selection = "$ARTICLE_STREAM_ID_COL = ? AND $ARTICLE_STREAM_UNREAD_COL = ?",
+                selectionArgs = arrayOf(streamId, streamUnreadOnly.toInt().toString()))
             .map(ArticleRow::article)
 
     override fun onInsertRow(row: ArticleRow) {
-        val article = row.article;
+        val article = row.article
         article.alternate?.let {
             linkTable.insertAll(it, row.article.id)
         }
