@@ -7,11 +7,11 @@ import io.reactivex.Observable
 
 interface RssStore {
 
-    fun getAllArticles(): Observable<Stream>
+    fun getAllArticles(unreadOnly: Boolean): Observable<Stream>
 
     fun getAllCategories(): Observable<List<Category>>
 
-    fun getStream(streamId: String): Observable<Stream>
+    fun getStream(streamId: String, unreadOnly: Boolean): Observable<Stream>
 
     fun refreshStream(streamId: String)
 

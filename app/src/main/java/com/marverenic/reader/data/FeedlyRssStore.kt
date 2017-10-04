@@ -12,6 +12,7 @@ import com.marverenic.reader.utils.orEpoch
 import com.marverenic.reader.utils.replaceAll
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import org.joda.time.DateTime
 import retrofit2.Response
@@ -43,14 +44,18 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
                 }
     }
 
-    private val streams: MutableMap<String, RxLoader<Stream>> = mutableMapOf()
+    private val streams = mutableMapOf<String, RxLoader<Stream>>()
+    private val unreadStreams = mutableMapOf<String, RxLoader<Stream>>()
 
-    override fun getAllArticles(): Observable<Stream> = allArticlesStreamId.flatMapObservable { getStream(it) }
+    override fun getAllArticles(unreadOnly: Boolean): Observable<Stream> {
+        return allArticlesStreamId.flatMapObservable { getStream(it, unreadOnly) }
+    }
 
     override fun getAllCategories() = categories.getOrComputeValue()
 
-    private fun getStreamLoader(streamId: String): RxLoader<Stream> {
-        streams[streamId]?.let { return it }
+    private fun getStreamLoader(streamId: String, unreadOnly: Boolean): RxLoader<Stream> {
+        val streamsMap = if (unreadOnly) unreadStreams else streams
+        streamsMap[streamId]?.let { return it }
 
         var cached = false
         val cachedStream = loadAsync {
@@ -63,11 +68,11 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
 
         return RxLoader(cachedStream, stale) {
             authManager.getFeedlyAuthToken()
-                    .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE) }
+                    .flatMap { service.getStream(it, streamId, STREAM_LOAD_SIZE, unreadOnly) }
                     .unwrapResponse()
                     .map { it.copy(items = it.items.sortedByDescending(Article::timestamp)) }
         }.also { loader ->
-            streams[streamId] = loader
+            streamsMap[streamId] = loader
             loader.getObservable()
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io())
@@ -76,10 +81,13 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         }
     }
 
-    override fun getStream(streamId: String) = getStreamLoader(streamId).getOrComputeValue()
+    override fun getStream(streamId: String, unreadOnly: Boolean): Observable<Stream> {
+        return getStreamLoader(streamId, unreadOnly).getOrComputeValue()
+    }
 
     override fun refreshStream(streamId: String) {
-        getStreamLoader(streamId).computeValue()
+        getStreamLoader(streamId, true).computeValue()
+        getStreamLoader(streamId, false).computeValue()
     }
 
     override fun refreshAllArticles() {
@@ -90,7 +98,13 @@ class FeedlyRssStore(private val authManager: AuthenticationManager,
         categories.computeValue()
     }
 
-    override fun isLoadingStream(streamId: String) = getStreamLoader(streamId).isComputingValue()
+    override fun isLoadingStream(streamId: String): Observable<Boolean> {
+        val loadingRead = getStreamLoader(streamId, false).isComputingValue()
+        val loadingUnread = getStreamLoader(streamId, true).isComputingValue()
+
+        return Observable.combineLatest(loadingRead, loadingUnread,
+                BiFunction { readLoading, unreadLoading -> readLoading || unreadLoading })
+    }
 
     override fun loadMoreArticles(stream: Stream) {
         if (stream.continuation == null) {
