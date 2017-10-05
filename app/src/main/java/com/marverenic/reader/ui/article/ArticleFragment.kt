@@ -1,9 +1,12 @@
 package com.marverenic.reader.ui.article
 
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.marverenic.reader.R
+import com.marverenic.reader.databinding.FragmentArticleBinding
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.ui.ToolbarFragment
 
@@ -31,6 +34,11 @@ class ArticleFragment : ToolbarFragment() {
 
     override fun onCreateContentView(inflater: LayoutInflater, container: ViewGroup,
                                      savedInstanceState: Bundle?): View {
-        return View(context)
+        val binding = DataBindingUtil.inflate<FragmentArticleBinding>(inflater,
+                R.layout.fragment_article, container, false)
+
+        binding.viewModel = ArticleViewModel(context, article)
+
+        return binding.root
     }
 }
