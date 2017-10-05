@@ -113,7 +113,7 @@ class ArticleTable(private val linkTable: LinkTable,
         }
 
         article.summary?.let {
-            cv.put(ARTICLE_CONTENT_COL, it.summary())
+            cv.put(ARTICLE_CONTENT_COL, it.content)
         }
     }
 
