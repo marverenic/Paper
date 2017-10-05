@@ -5,6 +5,7 @@ import android.content.Intent
 import android.databinding.BaseObservable
 import android.databinding.Bindable
 import android.net.Uri
+import android.os.Build
 import android.text.Html
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -38,11 +39,20 @@ class ArticleViewModel(
         }
     }
 
-    private fun Content?.html(): Spanned {
-        return Html.fromHtml(
-                this?.content.orEmpty(),
-                PicassoImageGetter(context) { notifyPropertyChanged(BR.summary) },
-                null)
+    private fun Content?.html() = parseHtml(
+            html = this?.content.orEmpty(),
+            imageGetter = PicassoImageGetter(context) { notifyPropertyChanged(BR.summary) }
+    )
+
+    private fun parseHtml(html: String,
+                          imageGetter: Html.ImageGetter? = null,
+                          tagHandler: Html.TagHandler? = null): Spanned {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY, imageGetter, tagHandler)
+        } else {
+            @Suppress("DEPRECATION")
+            Html.fromHtml(html, imageGetter, tagHandler)
+        }
     }
 
 }
