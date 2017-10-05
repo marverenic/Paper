@@ -55,7 +55,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.summary}"
+                app:content="@{viewModel.summary}"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
