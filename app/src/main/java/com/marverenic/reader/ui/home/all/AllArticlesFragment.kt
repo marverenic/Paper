@@ -50,6 +50,7 @@ class AllArticlesFragment : HomeFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_all_articles, container, false)
         val viewModel = AllArticlesViewModel(context,
+                streamTitle = title,
                 readCallback = { rssStore.markAsRead(it) },
                 fetchCallback = { rssStore.loadMoreArticles(it) })
 

@@ -14,7 +14,8 @@ private const val READ_ALPHA = 0.5f
 
 class ArticleViewModel(private val context: Context,
                        private val callback: ArticleReadCallback,
-                       article: Article)
+                       article: Article,
+                       var streamTitle: String)
     : BaseObservable() {
 
     var article: Article = article
@@ -47,7 +48,7 @@ class ArticleViewModel(private val context: Context,
         @Bindable get() = if (article.unread) UNREAD_ALPHA else READ_ALPHA
 
     fun onClickArticle() {
-        context.startActivity(ArticleActivity.newIntent(context, article))
+        context.startActivity(ArticleActivity.newIntent(context, article, streamTitle))
         callback(article)
     }
 

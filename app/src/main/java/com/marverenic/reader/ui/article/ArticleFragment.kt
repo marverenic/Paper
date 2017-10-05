@@ -16,17 +16,19 @@ class ArticleFragment : ToolbarFragment() {
         get() = arguments.getParcelable(ARG_ARTICLE)
 
     override val title: String
-        get() = article.title.orEmpty()
+        get() = arguments.getString(ARG_TITLE)
 
     override val canNavigateUp = true
 
     companion object {
         private const val ARG_ARTICLE = "article"
+        private const val ARG_TITLE = "title"
 
-        fun newInstance(article: Article): ArticleFragment {
+        fun newInstance(article: Article, title: String): ArticleFragment {
             return ArticleFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(ARG_ARTICLE, article)
+                    putString(ARG_TITLE, title)
                 }
             }
         }
