@@ -1,14 +1,13 @@
 package com.marverenic.reader.ui.common.article
 
 import android.content.Context
-import android.content.Intent
 import android.databinding.BaseObservable
 import android.databinding.Bindable
-import android.net.Uri
 import android.view.View
 import com.marverenic.reader.BR
 import com.marverenic.reader.model.Article
 import com.marverenic.reader.model.toDateString
+import com.marverenic.reader.ui.article.ArticleActivity
 
 private const val UNREAD_ALPHA = 1.0f
 private const val READ_ALPHA = 0.5f
@@ -48,10 +47,8 @@ class ArticleViewModel(private val context: Context,
         @Bindable get() = if (article.unread) UNREAD_ALPHA else READ_ALPHA
 
     fun onClickArticle() {
-        article.alternate?.firstOrNull()?.href?.let {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
-            callback(article)
-        }
+        context.startActivity(ArticleActivity.newIntent(context, article))
+        callback(article)
     }
 
 }

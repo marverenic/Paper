@@ -41,6 +41,7 @@
         </activity>
 
         <activity android:name=".ui.stream.StreamActivity"/>
+        <activity android:name=".ui.article.ArticleActivity"/>
 
     </application>
 </manifest>
