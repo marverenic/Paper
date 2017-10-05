@@ -22,6 +22,7 @@ private const val ARTICLE_VISUAL_WIDTH_COL = "visual_width"
 private const val ARTICLE_VISUAL_HEIGHT_COL = "visual_height"
 private const val ARTICLE_VISUAL_URL_COL = "visual_url"
 private const val ARTICLE_CONTENT_COL = "content"
+private const val ARTICLE_SUMMARY_COL = "summary"
 
 private const val CREATE_STATEMENT = """
                 CREATE TABLE $ARTICLE_TABLE_NAME (
@@ -39,7 +40,8 @@ private const val CREATE_STATEMENT = """
                     $ARTICLE_VISUAL_WIDTH_COL           integer,
                     $ARTICLE_VISUAL_HEIGHT_COL          integer,
                     $ARTICLE_VISUAL_URL_COL             varchar,
-                    $ARTICLE_CONTENT_COL                text
+                    $ARTICLE_CONTENT_COL                text,
+                    $ARTICLE_SUMMARY_COL                text
                 );
             """
 
@@ -67,8 +69,8 @@ private fun Cursor.getVisual(): Visual? {
     }
 }
 
-private fun Cursor.getContent(): Content? {
-    return getOptionalString(ARTICLE_CONTENT_COL)?.let { Content(it) }
+private fun Cursor.getContent(columnName: String): Content? {
+    return getOptionalString(columnName)?.let { Content(it) }
 }
 
 data class ArticleRow(val article: Article, val streamId: String, val streamUnreadOnly: Boolean)
@@ -112,8 +114,12 @@ class ArticleTable(private val linkTable: LinkTable,
             cv.put(ARTICLE_VISUAL_URL_COL, it.url)
         }
 
-        article.summary?.let {
+        article.content?.let {
             cv.put(ARTICLE_CONTENT_COL, it.content)
+        }
+
+        article.summary?.let {
+            cv.put(ARTICLE_SUMMARY_COL, it.content)
         }
     }
 
@@ -131,7 +137,8 @@ class ArticleTable(private val linkTable: LinkTable,
                         unread = cursor.getBoolean(ARTICLE_UNREAD_COL),
                         origin = cursor.getOrigin(),
                         visual = cursor.getVisual(),
-                        summary = cursor.getContent(),
+                        content = cursor.getContent(ARTICLE_CONTENT_COL),
+                        summary = cursor.getContent(ARTICLE_SUMMARY_COL),
                         alternate = linkTable.findByArticle(articleId),
                         tags = articleTagTable.getTagIdsForArticle(articleId)
                                 .mapNotNull { tagTable.findById(it) },

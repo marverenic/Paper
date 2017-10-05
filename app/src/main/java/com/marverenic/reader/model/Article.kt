@@ -13,6 +13,7 @@ data class Article(
         val unread: Boolean,
         val origin: Origin?,
         val visual: Visual?,
+        val content: Content?,
         val summary: Content?,
         val alternate: List<Link>?,
         val tags: List<Tag>?,
@@ -31,6 +32,7 @@ data class Article(
             unread = parcel.readBoolean(),
             origin = parcel.readParcelable(),
             visual = parcel.readParcelable(),
+            content = parcel.readParcelable(),
             summary = parcel.readParcelable(),
             alternate = parcel.readList(),
             tags = parcel.readList(),
@@ -47,6 +49,7 @@ data class Article(
             writeBoolean(unread)
             writeParcelable(origin, 0)
             writeParcelable(visual, 0)
+            writeParcelable(content, 0)
             writeParcelable(summary, 0)
             writeList(alternate)
             writeList(tags)
