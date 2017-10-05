@@ -26,7 +26,7 @@ class ArticleViewModel(
     val author: String
         get() = article.author.orEmpty()
 
-    val summary: Spanned = article.summary.html()
+    val summary: Spanned = (article.content ?: article.summary).html()
         @Bindable get() = field
 
     val movementMethod = LinkMovementMethod.getInstance()!!
