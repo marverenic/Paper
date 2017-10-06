@@ -1,10 +1,12 @@
 package com.marverenic.reader.ui.login
 
 import android.content.Context
-import android.content.Intent
 import android.databinding.BaseObservable
 import android.net.Uri
+import android.support.customtabs.CustomTabsIntent
+import com.marverenic.reader.R
 import com.marverenic.reader.data.AuthenticationManager
+import com.marverenic.reader.utils.resolveIntAttr
 
 class LoginViewModel(
         private val context: Context,
@@ -12,7 +14,13 @@ class LoginViewModel(
 ) : BaseObservable() {
 
     fun onClickLogin() {
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(authManager.loginUrl)))
+        val intent = CustomTabsIntent.Builder()
+                .addDefaultShareMenuItem()
+                .setToolbarColor(context.resolveIntAttr(R.attr.colorPrimary))
+                .enableUrlBarHiding()
+                .build()
+
+        intent.launchUrl(context, Uri.parse(authManager.loginUrl))
     }
 
 }
