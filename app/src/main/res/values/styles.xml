@@ -12,4 +12,8 @@
         <item name="android:background">?attr/colorPrimary</item>
     </style>
 
+    <style name="ArticleTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/article_reader_background</item>
+    </style>
+
 </resources>

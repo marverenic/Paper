@@ -40,7 +40,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.source}"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:text="Website name"/>
 
                 <TextView
@@ -48,6 +50,8 @@
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.author}"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:text="Author name"/>
 
             </LinearLayout>
