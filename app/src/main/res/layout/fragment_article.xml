@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.marverenic.reader.ui.article.ArticleViewModel"/>
+            type="com.marverenic.reader.ui.article.ArticleViewerViewModel"/>
     </data>
 
     <ScrollView

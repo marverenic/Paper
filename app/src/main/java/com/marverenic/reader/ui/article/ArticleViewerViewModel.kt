@@ -7,7 +7,7 @@ import android.net.Uri
 import android.text.format.DateUtils.*
 import com.marverenic.reader.model.Article
 
-class ArticleViewModel(
+class ArticleViewerViewModel(
         private val context: Context,
         private val article: Article
 ) : BaseObservable() {

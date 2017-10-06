@@ -39,7 +39,7 @@ class ArticleFragment : ToolbarFragment() {
         val binding = DataBindingUtil.inflate<FragmentArticleBinding>(inflater,
                 R.layout.fragment_article, container, false)
 
-        binding.viewModel = ArticleViewModel(context, article)
+        binding.viewModel = ArticleViewerViewModel(context, article)
 
         return binding.root
     }
