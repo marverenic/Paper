@@ -15,9 +15,7 @@ class LoginViewModel(
 
     fun onClickLogin() {
         val intent = CustomTabsIntent.Builder()
-                .addDefaultShareMenuItem()
                 .setToolbarColor(context.resolveIntAttr(R.attr.colorPrimary))
-                .enableUrlBarHiding()
                 .build()
 
         intent.launchUrl(context, Uri.parse(authManager.loginUrl))
