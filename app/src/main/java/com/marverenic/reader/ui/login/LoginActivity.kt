@@ -22,6 +22,7 @@ class LoginActivity : SingleFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ReaderApplication.component(this).inject(this)
+        onNewIntent(intent)
     }
 
     override fun onCreateFragment() = LoginFragment.newInstance()
@@ -34,8 +35,11 @@ class LoginActivity : SingleFragmentActivity() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { loggedIn ->
                         if (loggedIn) {
-                            startActivity(HomeActivity.newIntent(this))
-                            finish()
+                            startActivity(HomeActivity.newIntent(this).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            })
+                            finishAffinity()
                         } else {
                             // TODO show error message
                         }

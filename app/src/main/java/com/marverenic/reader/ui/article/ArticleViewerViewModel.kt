@@ -1,11 +1,13 @@
 package com.marverenic.reader.ui.article
 
 import android.content.Context
-import android.content.Intent
 import android.databinding.BaseObservable
 import android.net.Uri
+import android.support.customtabs.CustomTabsIntent
 import android.text.format.DateUtils.*
+import com.marverenic.reader.R
 import com.marverenic.reader.model.Article
+import com.marverenic.reader.utils.resolveIntAttr
 
 class ArticleViewerViewModel(
         private val context: Context,
@@ -32,7 +34,13 @@ class ArticleViewerViewModel(
     fun openArticle() {
         val url = article.alternate?.first()?.href
         url?.let {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+            val intent = CustomTabsIntent.Builder()
+                    .addDefaultShareMenuItem()
+                    .setToolbarColor(context.resolveIntAttr(R.attr.colorPrimary))
+                    .enableUrlBarHiding()
+                    .build()
+
+            intent.launchUrl(context, Uri.parse(it))
         }
     }
 

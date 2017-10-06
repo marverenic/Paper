@@ -22,8 +22,7 @@
 
         <activity android:name=".ui.home.HomeActivity"/>
 
-        <activity android:name=".ui.login.LoginActivity"
-            android:launchMode="singleTop">
+        <activity android:name=".ui.login.LoginActivity">
             <intent-filter tools:ignore="AppLinkUrlError">
 
                 <action android:name="android.intent.action.VIEW" />
