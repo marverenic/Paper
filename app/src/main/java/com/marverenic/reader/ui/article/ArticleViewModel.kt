@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.BaseObservable
 import android.net.Uri
-import android.text.method.LinkMovementMethod
 import com.marverenic.reader.model.Article
 
 class ArticleViewModel(
@@ -23,7 +22,7 @@ class ArticleViewModel(
 
     val summary = article.content ?: article.summary
 
-    val movementMethod = LinkMovementMethod.getInstance()!!
+    val movementMethod = ArticleLinkMovementMethod
 
     fun openArticle() {
         val url = article.alternate?.first()?.href

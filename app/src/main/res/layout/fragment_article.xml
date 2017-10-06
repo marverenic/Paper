@@ -64,6 +64,8 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="16dp"
+                android:textIsSelectable="true"
+                android:textColorHighlight="?attr/colorControlHighlight"
                 app:movementMethod="@{viewModel.movementMethod}"
                 tools:text="Article content"/>
 
