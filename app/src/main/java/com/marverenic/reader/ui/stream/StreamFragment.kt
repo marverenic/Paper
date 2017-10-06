@@ -1,6 +1,5 @@
 package com.marverenic.reader.ui.stream
 
-import android.annotation.SuppressLint
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.view.*
@@ -38,7 +37,6 @@ class StreamFragment : ToolbarFragment() {
     private var streamSubscription: Disposable? = null
 
     companion object {
-        @SuppressLint("NewApi")
         fun newInstance(streamName: String, streamId: String) = StreamFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_STREAM_NAME, streamName)
@@ -65,6 +63,7 @@ class StreamFragment : ToolbarFragment() {
     override fun onCreateContentView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_stream, container, false)
         val viewModel = StreamViewModel(context,
+                streamTitle = title,
                 readCallback = { rssStore.markAsRead(it) },
                 fetchCallback = { rssStore.loadMoreArticles(it) })
 

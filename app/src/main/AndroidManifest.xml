@@ -42,5 +42,8 @@
 
         <activity android:name=".ui.stream.StreamActivity"/>
 
+        <activity android:name=".ui.article.ArticleActivity"
+            android:theme="@style/ArticleTheme"/>
+
     </application>
 </manifest>

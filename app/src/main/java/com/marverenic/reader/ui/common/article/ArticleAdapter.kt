@@ -15,8 +15,9 @@ private const val ARTICLE_VIEW_TYPE = 0
 private const val LOAD_MORE_VIEW_TYPE = 1
 
 class ArticleAdapter(stream: Stream? = null,
-                     val readCallback: ArticleReadCallback,
-                     val fetchCallback: ArticleFetchCallback)
+                     var streamTitle: String,
+                     private val readCallback: ArticleReadCallback,
+                     private val fetchCallback: ArticleFetchCallback)
     : RecyclerView.Adapter<ArticleAdapterViewHolder>() {
 
     var stream: Stream? = stream
@@ -34,7 +35,7 @@ class ArticleAdapter(stream: Stream? = null,
 
     override fun onBindViewHolder(holder: ArticleAdapterViewHolder, position: Int) {
         when (holder) {
-            is ArticleViewHolder -> holder.bind(articles[position])
+            is ArticleViewHolder -> holder.bind(articles[position], streamTitle)
             is LoadMoreViewHolder -> stream?.let { holder.bind(it) }
         }
     }
@@ -71,9 +72,13 @@ class ArticleViewHolder(val binding: ViewArticleBinding,
                         val callback: ArticleReadCallback)
     : ArticleAdapterViewHolder(binding.root) {
 
-    fun bind(article: Article) {
-        binding.viewModel?.let { it.article = article }
-                ?: binding.let { it.viewModel = ArticleViewModel(itemView.context, callback, article) }
+    fun bind(article: Article, streamTitle: String) {
+        binding.viewModel?.let {
+            it.article = article
+            it.streamTitle = streamTitle
+        } ?: binding.let {
+            it.viewModel = ArticleViewModel(itemView.context, callback, article, streamTitle)
+        }
     }
 
 }

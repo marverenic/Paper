@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.marverenic.reader.ui.article.ArticleViewerViewModel"/>
+    </data>
+
+    <ScrollView
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusableInTouchMode="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackground"
+                android:paddingStart="@dimen/article_horizontal_padding"
+                android:paddingEnd="@dimen/article_horizontal_padding"
+                android:paddingTop="@dimen/article_vertical_padding"
+                android:paddingBottom="@dimen/article_title_vertical_padding"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{() -> viewModel.openArticle()}">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.timestamp}"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                    tools:text="January 1, 1970"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.title}"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
+                    tools:text="Article title"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.source}"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Website name"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.author}"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                    android:textColor="?android:textColorPrimary"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Author name"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:content="@{viewModel.summary}"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
+                android:paddingStart="@dimen/article_horizontal_padding"
+                android:paddingEnd="@dimen/article_horizontal_padding"
+                android:paddingTop="@dimen/article_title_vertical_padding"
+                android:paddingBottom="@dimen/article_vertical_padding"
+                android:textIsSelectable="true"
+                android:textColorHighlight="?attr/colorControlHighlight"
+                app:movementMethod="@{viewModel.movementMethod}"
+                tools:text="Article content"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+</layout>

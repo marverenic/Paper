@@ -16,6 +16,7 @@ import io.reactivex.subjects.BehaviorSubject
 
 class AllArticlesViewModel(val context: Context,
                            stream: Stream? = null,
+                           var streamTitle: String,
                            val readCallback: ArticleReadCallback,
                            val fetchCallback: ArticleFetchCallback)
     : BaseObservable() {
@@ -40,7 +41,7 @@ class AllArticlesViewModel(val context: Context,
     private val refreshSubject = BehaviorSubject.createDefault(refreshing)
 
     val adapter: ArticleAdapter by lazy(LazyThreadSafetyMode.NONE) {
-        ArticleAdapter(stream, readCallback, fetchCallback)
+        ArticleAdapter(stream, streamTitle, readCallback, fetchCallback)
     }
 
     val layoutManager = LinearLayoutManager(context)

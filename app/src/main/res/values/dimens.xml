@@ -4,4 +4,8 @@
     <dimen name="list_item_padding">16dp</dimen>
     <dimen name="list_horizontal_separation">8dp</dimen>
 
+    <dimen name="article_horizontal_padding">16dp</dimen>
+    <dimen name="article_vertical_padding">16dp</dimen>
+    <dimen name="article_title_vertical_padding">8dp</dimen>
+
 </resources>
