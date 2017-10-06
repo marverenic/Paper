@@ -33,6 +33,13 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@{viewModel.timestamp}"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                    tools:text="January 1, 1970"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="@{viewModel.title}"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
                     tools:text="Article title"/>
@@ -51,6 +58,7 @@
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.author}"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+                    android:textColor="?android:textColorPrimary"
                     android:maxLines="1"
                     android:ellipsize="end"
                     tools:text="Author name"/>

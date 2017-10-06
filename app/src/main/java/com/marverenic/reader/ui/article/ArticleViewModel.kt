@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.BaseObservable
 import android.net.Uri
+import android.text.format.DateUtils.*
 import com.marverenic.reader.model.Article
 
 class ArticleViewModel(
@@ -19,6 +20,10 @@ class ArticleViewModel(
 
     val author: String
         get() = article.author.orEmpty()
+
+    val timestamp: String
+        get() = formatDateTime(context, article.timestamp,
+                FORMAT_SHOW_TIME or FORMAT_SHOW_DATE or FORMAT_SHOW_WEEKDAY)
 
     val summary = article.content ?: article.summary
 
