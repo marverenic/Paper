@@ -17,7 +17,7 @@ fun bindContent(view: TextView, content: Content?) {
                 imageGetter = PicassoImageGetter(
                         view.context,
                         maxWidth = view.measuredWidth - view.paddingStart - view.paddingEnd
-                ) { invalidate() }
+                ) { text = text }
         )
     }
 }
